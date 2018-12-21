@@ -39,7 +39,7 @@ class CRM_Donutapp_API_Client {
     if (is_null(self::$userAgent)) {
       $version = civicrm_api3('Extension', 'getvalue', [
         'return' => 'version',
-        'full_name' => CRM_Donutapp_ExtensionUtil::LONG_NAME,
+        'key' => CRM_Donutapp_ExtensionUtil::LONG_NAME,
       ]);
       self::$userAgent = CRM_Donutapp_ExtensionUtil::LONG_NAME . '/' . $version;
     }
