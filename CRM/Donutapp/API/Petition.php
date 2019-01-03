@@ -8,6 +8,13 @@ class CRM_Donutapp_API_Petition {
     $this->data = $data;
   }
 
+  /**
+   * Return the requested attribute of the API response
+   *
+   * @param $property
+   *
+   * @return mixed
+   */
   public function __get($property) {
     if (array_key_exists($property, $this->data)) {
       return $this->data[$property];
@@ -19,7 +26,12 @@ class CRM_Donutapp_API_Petition {
    * Fetch all petitions ready for retrieval
    *
    * @param array $options
-   * @return \CRM_Donutapp_API_Petition[]
+   *
+   * @return array
+   * @throws \CRM_Donutapp_API_Error_Authentication
+   * @throws \CRM_Donutapp_API_Error_BadResponse
+   * @throws \CiviCRM_API3_Exception
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public static function all(array $options = []) {
     $hasNextPage = TRUE;
@@ -42,7 +54,8 @@ class CRM_Donutapp_API_Petition {
             'page_size' => $page_size
           ])
         );
-      } else {
+      }
+      else {
         $result = CRM_Donutapp_API_Client::get($nextUri);
       }
       $hasNextPage = !empty($result->next);
@@ -65,8 +78,10 @@ class CRM_Donutapp_API_Petition {
   /**
    * Confirm the retrieval of this petition
    *
-   * @return bool
+   * @throws \CRM_Donutapp_API_Error_Authentication
    * @throws \CRM_Donutapp_API_Error_BadResponse
+   * @throws \CiviCRM_API3_Exception
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function confirm() {
     $response = CRM_Donutapp_API_Client::postJSON(
@@ -93,4 +108,5 @@ class CRM_Donutapp_API_Petition {
       }
     }
   }
+
 }

@@ -7,6 +7,14 @@ abstract class CRM_Donutapp_Processor_Base {
     $this->params = $params;
   }
 
+  /**
+   * Find or create a dialoger based on the dialoger ID
+   *
+   * @param $petition
+   *
+   * @return |null
+   * @throws \CiviCRM_API3_Exception
+   */
   protected function findOrCreateDialoger($petition) {
     if (!preg_match('/^gpat\-(\d{4,5})$/', $petition->fundraiser_code, $match)) {
       return NULL;
@@ -51,5 +59,11 @@ abstract class CRM_Donutapp_Processor_Base {
     return $dialoger['id'];
   }
 
+  /**
+   * Process entity
+   *
+   * @return mixed
+   */
   abstract public function process();
+
 }

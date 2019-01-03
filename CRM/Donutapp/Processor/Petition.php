@@ -29,7 +29,10 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
   /**
    * Fetch and process petitions
    *
-   * @throws \Exception
+   * @throws \CRM_Donutapp_API_Error_Authentication
+   * @throws \CRM_Donutapp_API_Error_BadResponse
+   * @throws \CiviCRM_API3_Exception
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function process() {
     CRM_Donutapp_API_Client::setClientId($this->params['client_id']);
@@ -40,7 +43,8 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
     foreach ($importedPetitions as $petition) {
       try {
         $this->processPetition($petition);
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         // Create Import Error Activity
         throw $e;
       }
@@ -52,8 +56,10 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
    *
    * @param \CRM_Donutapp_API_Petition $petition
    *
+   * @throws \CRM_Donutapp_API_Error_Authentication
    * @throws \CRM_Donutapp_API_Error_BadResponse
    * @throws \CiviCRM_API3_Exception
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function processPetition(CRM_Donutapp_API_Petition $petition) {
     if (!$this->isDeferrable($petition)) {
@@ -62,6 +68,7 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
         case 1:
           $prefix = 'Herr';
           break;
+
         case 2:
           $prefix = 'Frau';
           break;
@@ -86,7 +93,8 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
       $dialoger = $this->findOrCreateDialoger($petition);
       if (is_null($dialoger)) {
         CRM_Core_Error::debug_log_message('Unable to create dialoger "' . $petition->fundraiser_code . '"');
-      } else {
+      }
+      else {
         $params['petition_dialoger'] = $dialoger;
       }
       civicrm_api3('Engage', 'signpetition', $params);
@@ -96,4 +104,5 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
       }
     }
   }
+
 }

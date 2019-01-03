@@ -44,20 +44,14 @@ function _civicrm_api3_donut_petition_import_spec(&$spec) {
 /**
  * DonutPetition.import API
  *
- * @param array $params
- * @return array API result descriptor
- * @see civicrm_api3_create_success
- * @see civicrm_api3_create_error
- * @throws API_Exception
+ * @param $params API parameters
+ *
+ * @return array API result
+ * @throws \Exception
  */
 function civicrm_api3_donut_petition_import($params) {
-  if (array_key_exists('limit', $params)) {
-    $params['limit'] = abs($params['limit']);
-    $processor = new CRM_Donutapp_Processor_Petition($params);
-    $processor->process();
-    return civicrm_api3_create_success();
-  }
-  else {
-    throw new API_Exception(/*errorMessage*/ 'Everyone knows that the magicword is "sesame"', /*errorCode*/ 1234);
-  }
+  $params['limit'] = abs($params['limit']);
+  $processor = new CRM_Donutapp_Processor_Petition($params);
+  $processor->process();
+  return civicrm_api3_create_success();
 }
