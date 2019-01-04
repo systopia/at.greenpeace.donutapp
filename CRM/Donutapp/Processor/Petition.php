@@ -74,6 +74,8 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
           break;
       }
 
+      $signature_date = DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $petition->createtime);
+
       $params = [
         'prefix'              => $prefix,
         'first_name'          => $petition->donor_first_name,
@@ -89,6 +91,7 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
         'postal_code'         => $petition->donor_zip_code,
         'city'                => $petition->donor_city,
         'country'             => $petition->donor_country,
+        'signature_date'      => $signature_date->format('YmdHis'),
       ];
       $dialoger = $this->findOrCreateDialoger($petition);
       if (is_null($dialoger)) {
