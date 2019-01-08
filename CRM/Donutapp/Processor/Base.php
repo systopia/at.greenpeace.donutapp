@@ -20,7 +20,7 @@ abstract class CRM_Donutapp_Processor_Base {
       return NULL;
     }
     $dialoger_id = $match[1];
-    $dialoger_id_field = CRM_Core_BAO_CustomField::getCustomFieldID('dialoger_id', 'dialoger_data', TRUE);
+    $dialoger_id_field = 'custom_' . CRM_Core_BAO_CustomField::getCustomFieldID('dialoger_id', 'dialoger_data');
     // lookup dialoger by dialoger_id
     $dialoger = civicrm_api3('Contact', 'get', [
       $dialoger_id_field => $dialoger_id,
@@ -29,7 +29,7 @@ abstract class CRM_Donutapp_Processor_Base {
     ]);
     if (empty($dialoger['id'])) {
       // no matching dialoger found, create with dialoger_id and name
-      $dialoger_start_field = CRM_Core_BAO_CustomField::getCustomFieldID('dialoger_start_date', 'dialoger_data', TRUE);
+      $dialoger_start_field = 'custom_' . CRM_Core_BAO_CustomField::getCustomFieldID('dialoger_start_date', 'dialoger_data');
       $name = explode(',', $petition->fundraiser_name);
       $first_name = $last_name = NULL;
       if (count($name) == 2) {
