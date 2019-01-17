@@ -20,6 +20,11 @@ class CRM_Donutapp_API_Client {
   static $client = NULL;
 
   /**
+   * @var Client
+   */
+  static $oauth2Client = NULL;
+
+  /**
    * Set the API endpoint
    *
    * @param $apiEndpoint
@@ -75,11 +80,33 @@ class CRM_Donutapp_API_Client {
   /**
    * Prepare the base client
    */
-  public static function setupClient() {
-    self::$client = new Client([
-      'base_uri' => self::$apiEndpoint,
-      'timeout'  => 60,
-    ]);
+  public static function setupClient($clientOptions = []) {
+    $clientOptions = array_merge(
+      $clientOptions,
+      [
+        'base_uri' => self::$apiEndpoint,
+        'timeout'  => 60,
+      ]
+    );
+    self::$client = new Client($clientOptions);
+  }
+
+  public static function setupOauth2Client($clientOptions = []) {
+    $clientOptions = array_merge(
+      $clientOptions,
+      [
+        'base_uri' => self::$oauth2Endpoint,
+        'timeout'  => 60,
+        'request.options' => [
+          'headers' => [
+            'Accept'        => 'application/json',
+            'Content-Type'  => 'application/json',
+            'User-Agent'    => self::getUserAgent(),
+          ],
+        ]
+      ]
+    );
+    self::$oauth2Client = new Client($clientOptions);
   }
 
   /**
@@ -94,22 +121,17 @@ class CRM_Donutapp_API_Client {
    */
   public static function getAccessToken() {
     try {
-      $client = new Client([
-        'base_uri' => self::$oauth2Endpoint,
-        'timeout'  => 60,
-        'request.options' => [
-          'headers' => [
-            'Accept'        => 'application/json',
-            'Content-Type'  => 'application/json',
-            'User-Agent'    => self::getUserAgent(),
-          ],
-        ],
-        'auth' => [self::$clientId, self::$clientSecret, 'Basic'],
-      ]);
-      $response = $client->post('');
+      if (is_null(self::$oauth2Client)) {
+        self::setupOauth2Client();
+      }
+      $response = self::$oauth2Client->post(
+        '',
+        [
+          'auth' => [self::$clientId, self::$clientSecret, 'Basic']
+        ]
+      );
       $authResponse = json_decode($response->getBody());
-      self::$accessToken = $authResponse->access_token;
-      self::setupClient();
+      return $authResponse->access_token;
     }
     catch (GuzzleHttp\Exception\ClientException $e) {
       throw new CRM_Donutapp_API_Error_Authentication($e->getMessage());
@@ -161,7 +183,10 @@ class CRM_Donutapp_API_Client {
    */
   public static function bootstrap() {
     if (is_null(self::$accessToken)) {
-      self::getAccessToken();
+      self::$accessToken = self::getAccessToken();
+    }
+    if (is_null(self::$client)) {
+      self::setupClient();
     }
   }
 
