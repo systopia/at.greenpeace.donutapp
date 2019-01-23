@@ -42,12 +42,30 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
     ]);
     foreach ($importedPetitions as $petition) {
       try {
-        $this->processPetition($petition);
+        $this->processWithTransaction($petition);
       }
       catch (Exception $e) {
         // Create Import Error Activity
-        throw $e;
+        CRM_Donutapp_Util::createImportError('Petition', $e, $petition);
       }
+    }
+  }
+
+  /**
+   * Process a petition within a database transaction
+   *
+   * @param \CRM_Donutapp_API_Petition $petition
+   *
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   */
+  protected function processWithTransaction(CRM_Donutapp_API_Petition $petition) {
+    $tx = new CRM_Core_Transaction();
+    try {
+      $this->processPetition($petition);
+    }
+    catch (Exception $e) {
+      $tx->rollback();
+      throw $e;
     }
   }
 
