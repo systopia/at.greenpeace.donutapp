@@ -76,12 +76,17 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
 
       $signature_date = DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $petition->createtime);
 
+      $phone = $petition->donor_mobile;
+      if (empty($phone)) {
+        $phone = $petition->donor_phone;
+      }
+
       $params = [
         'prefix'              => $prefix,
         'first_name'          => $petition->donor_first_name,
         'last_name'           => $petition->donor_last_name,
         'birth_date'          => $petition->donor_date_of_birth,
-        'phone'               => $petition->donor_mobile,
+        'phone'               => $phone,
         'email'               => $petition->donor_email,
         'campaign'            => 'DD',
         'medium_id'           => CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'medium_id', 'in_person'),
