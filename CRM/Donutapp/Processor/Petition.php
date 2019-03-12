@@ -73,8 +73,11 @@ class CRM_Donutapp_Processor_Petition extends CRM_Donutapp_Processor_Base {
           $prefix = 'Frau';
           break;
       }
-
-      $signature_date = DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $petition->createtime);
+      $signature_date = DateTime::createFromFormat(
+        'U',
+        strtotime($petition->createtime)
+      );
+      $signature_date->setTimezone(new DateTimeZone(date_default_timezone_get()));
 
       $phone = $petition->donor_mobile;
       if (empty($phone)) {
