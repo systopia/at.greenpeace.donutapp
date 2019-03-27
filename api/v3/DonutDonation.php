@@ -2,17 +2,17 @@
 use CRM_Donutapp_ExtensionUtil as E;
 
 /**
- * DonutPetition.Import API specification (optional)
+ * DonutDonation.Import API specification (optional)
  * This is used for documentation and validation.
  *
  * @param array $spec description of fields supported by this API call
  * @return void
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
-function _civicrm_api3_donut_petition_import_spec(&$spec) {
+function _civicrm_api3_donut_donation_import_spec(&$spec) {
   $spec['limit'] = [
     'name'         => 'limit',
-    'title'        => 'Maximum number of petitions to process',
+    'title'        => 'Maximum number of donations to process',
     'type'         => CRM_Utils_TYPE::T_INT,
     'api.required' => 0,
     'api.default'  => 0,
@@ -34,7 +34,7 @@ function _civicrm_api3_donut_petition_import_spec(&$spec) {
 
   $spec['confirm'] = [
     'name'         => 'confirm',
-    'title'        => 'Confirm petition retrieval?',
+    'title'        => 'Confirm donation retrieval?',
     'type'         => CRM_Utils_TYPE::T_BOOLEAN,
     'api.required' => 0,
     'api.default'  => 1,
@@ -50,9 +50,9 @@ function _civicrm_api3_donut_petition_import_spec(&$spec) {
  * @throws \Exception
  * @throws \GuzzleHttp\Exception\GuzzleException
  */
-function civicrm_api3_donut_petition_import($params) {
+function civicrm_api3_donut_donation_import($params) {
   $params['limit'] = abs($params['limit']);
-  $processor = new CRM_Donutapp_Processor_Greenpeace_Petition($params);
+  $processor = new CRM_Donutapp_Processor_Greenpeace_Donation($params);
   $processor->process();
   return civicrm_api3_create_success();
 }

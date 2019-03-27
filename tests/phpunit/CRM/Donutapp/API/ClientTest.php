@@ -11,6 +11,8 @@ use GuzzleHttp\Psr7\Response;
 
 
 /**
+ * Test DonutApp API client
+ *
  * @group headless
  */
 class CRM_Donutapp_API_ClientTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {

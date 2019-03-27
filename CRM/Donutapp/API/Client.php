@@ -203,33 +203,37 @@ class CRM_Donutapp_API_Client {
    * @throws \CiviCRM_API3_Exception
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  public static function sendRequest($method, $uri, $body = NULL) {
-    self::bootstrap();
+  public static function sendJSONRequest($method, $uri, $body = NULL) {
     $request = new Request(
       $method,
       $uri,
       [
-        'Authorization' => 'Bearer ' . self::$accessToken,
         'Accept'        => 'application/json',
         'Content-Type'  => 'application/json',
-        'User-Agent'    => self::getUserAgent(),
       ],
       $body
     );
+    $response = self::sendRawRequest($request);
+    $body = $response->getBody();
+    if (defined('CIVICRM_DONUTAPP_LOGGING') && CIVICRM_DONUTAPP_LOGGING) {
+      CRM_Core_Error::debug_log_message(
+        'Donutapp API Response: ' . $body
+      );
+    }
+    return json_decode($body);
+  }
+
+  public static function sendRawRequest(Request $request) {
+    self::bootstrap();
+    $request = $request->withHeader('Authorization', 'Bearer ' . self::$accessToken);
+    $request = $request->withHeader('User-Agent', self::getUserAgent());
     if (defined('CIVICRM_DONUTAPP_LOGGING') && CIVICRM_DONUTAPP_LOGGING) {
       CRM_Core_Error::debug_log_message(
         'Donutapp API Request: ' . $request->getMethod() . ' ' . $request->getUri()
       );
     }
     try {
-      $response = self::$client->send($request);
-      $body = $response->getBody();
-      if (defined('CIVICRM_DONUTAPP_LOGGING') && CIVICRM_DONUTAPP_LOGGING) {
-        CRM_Core_Error::debug_log_message(
-          'Donutapp API Response: ' . $body
-        );
-      }
-      return json_decode($body);
+      return self::$client->send($request);
     }
     catch (GuzzleHttp\Exception\ClientException $e) {
       throw new CRM_Donutapp_API_Error_Authentication($e->getMessage());
@@ -251,7 +255,15 @@ class CRM_Donutapp_API_Client {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public static function get($uri) {
-    return self::sendRequest('GET', $uri);
+    return self::sendJSONRequest('GET', $uri);
+  }
+
+  public static function getRaw($uri) {
+    $request = new Request(
+      'GET',
+      $uri
+    );
+    return self::sendRawRequest($request)->getBody();
   }
 
   /**
@@ -267,7 +279,7 @@ class CRM_Donutapp_API_Client {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public static function postJSON($uri, array $data) {
-    return self::sendRequest('POST', $uri, json_encode($data));
+    return self::sendJSONRequest('POST', $uri, json_encode($data));
   }
 
 }
