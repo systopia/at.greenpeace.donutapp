@@ -66,7 +66,6 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
    * @throws \Exception
    */
   protected function processWelcomeEmail(CRM_Donutapp_API_Entity $entity, $contactId, $parentActivityId) {
-    $subject = 'Email "' . $this->getEmailSubject($entity) . '"';
     $create_date = new DateTime($entity->createtime);
     $create_date->setTimezone(new DateTimeZone(date_default_timezone_get()));
     $apiParams = [
@@ -81,12 +80,12 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
         // no break
       case 'sent':
       case 'open':
-        $email_action = $this->addEmailAction(
+        $email_activity = $this->addEmailActivity(
           $contactId,
           $parentActivityId,
           $this->getCampaign($entity),
           $entity->donor_email,
-          $subject,
+          $this->getEmailSubject($entity),
           $apiParams
         );
         break;
@@ -99,7 +98,7 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
       $this->addBounce(
         $bounce_type,
         $contactId,
-        $email_action['id'],
+        $email_activity['id'],
         $this->getCampaign($entity),
         $entity->donor_email,
         $apiParams
@@ -107,7 +106,7 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
     }
   }
 
-  protected function addEmailAction($contactId, $parentActivityId, $campaignId, $email, $subject, $apiParams = []) {
+  protected function addEmailActivity($contactId, $parentActivityId, $campaignId, $email, $subject, $apiParams = []) {
     $parent_field = 'custom_' . CRM_Core_BAO_CustomField::getCustomFieldID(
       'parent_activity_id',
       'activity_hierarchy'
@@ -120,17 +119,29 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
       'email_provider',
       'email_information'
     );
+    $mailing_type_field = 'custom_' . CRM_Core_BAO_CustomField::getCustomFieldID(
+      'mailing_type',
+      'email_information'
+    );
+    $mailing_subject_field = 'custom_' . CRM_Core_BAO_CustomField::getCustomFieldID(
+      'mailing_subject',
+      'email_information'
+    );
+
     $params = [
-      'target_id'           => $contactId,
-      'activity_type_id'    => 'Action',
-      'status_id'           => 'Completed',
-      'medium_id'           => 'email',
-      'campaign_id'         => $campaignId,
-      'subject'             => "{$subject} - {$email}",
-      $email_field          => $email,
-      $parent_field         => $parentActivityId,
-      $email_provider_field => 'Formunauts',
+      'target_id'            => $contactId,
+      'activity_type_id'     => 'Online_Mailing',
+      'status_id'            => 'Completed',
+      'medium_id'            => 'email',
+      'campaign_id'          => $campaignId,
+      'subject'              => "\"{$subject}\" - {$email}",
+      $email_field           => $email,
+      $mailing_subject_field => $subject,
+      $parent_field          => $parentActivityId,
+      $email_provider_field  => 'Formunauts',
+      $mailing_type_field    => 'Transactional',
     ];
+
     return civicrm_api3(
       'Activity',
       'create',
@@ -155,6 +166,7 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
       'email',
       'bounce_information'
     );
+
     $params = [
       'target_id'           => $contactId,
       'activity_type_id'    => 'Bounce',
@@ -167,6 +179,7 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
       $parent_field         => $parentActivityId,
       $email_provider_field => 'Formunauts',
     ];
+
     return civicrm_api3(
       'Activity',
       'create',

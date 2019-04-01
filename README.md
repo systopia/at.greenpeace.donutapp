@@ -7,7 +7,7 @@ The extension is licensed under [AGPL-3.0](LICENSE.txt).
 ## Requirements
 
 * PHP v5.6+
-* CiviCRM (4.6+)
+* CiviCRM (5.7+)
 
 ## Installation (Web UI)
 
@@ -39,4 +39,9 @@ To use the DonutApp API, you need a client_id and client_secret.
 
 To import petitions, use the `DonutPetition.import` API call.
 
+To import donations, use the `DonutDonation.import` API call.
+
 ## Known Issues
+
+- Only recurring donations are supported
+- The donation processor is not covered by unit tests
