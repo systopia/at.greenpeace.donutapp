@@ -257,6 +257,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
       throw new CRM_Donutapp_Processor_Exception('Could not create dialoger.');
     }
 
+    $channel = str_replace('Kontaktart:', '', $donation->membership_channel);
     // create membership
     // @TODO: use signature_date for contract_signed activity
     $contract_data = [
@@ -265,7 +266,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
       'join_date'                                            => $join_date->format('Ymd'),
       'start_date'                                           => $signature_date->format('YmdHis'),
       'campaign_id'                                          => $this->getCampaign($donation),
-      'membership_general.membership_channel'                => $donation->getSpecial('Kontaktart'),
+      'membership_general.membership_channel'                => $channel,
       'membership_general.membership_contract'               => $donation->person_id,
       'membership_general.membership_dialoger'               => $dialoger,
       'membership_payment.membership_recurring_contribution' => $mandate['entity_id'],
