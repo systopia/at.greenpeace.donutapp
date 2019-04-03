@@ -110,7 +110,6 @@ class CRM_Donutapp_API_Donation extends CRM_Donutapp_API_Entity {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function confirm() {
-    return;
     $response = CRM_Donutapp_API_Client::postJSON(
       CRM_Donutapp_API_Client::buildUri('/donations/confirm_retrieval'),
       [
