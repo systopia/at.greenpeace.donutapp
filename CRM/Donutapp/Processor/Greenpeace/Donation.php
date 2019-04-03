@@ -194,7 +194,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
       'currency'           => 'EUR',
       'type'               => 'RCUR',
       'campaign_id'        => $this->getCampaign($donation),
-      'frequency_interval' => $donation->direct_debit_interval,
+      'frequency_interval' => 12 / $donation->direct_debit_interval,
     ];
 
     // use Little BIC extension to look up BIC via IBAN
