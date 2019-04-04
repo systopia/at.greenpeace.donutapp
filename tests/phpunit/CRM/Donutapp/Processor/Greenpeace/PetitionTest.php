@@ -18,12 +18,12 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
   use \Civi\Test\Api3TestTrait;
 
   const SUCCESSFUL_AUTH_RESPONSE = '{"access_token": "secret", "token_type": "Bearer", "expires_in": 172800, "scope": "read write"}';
-  const PETITION_RESPONSE = '{"count":2,"total_pages":1,"next":null,"previous":null,"results":[{"donor_last_name":"Doe","uploadtime":"2019-01-17T10:20:37.649402Z","newsletter_optin":"1","uid":12345,"donor_house_number":"13","donor_salutation":2,"donor_email":"johndoe@example.com","on_hold_comment":"","campaign_id":51,"agency_id":"","donor_age_in_years":20,"donor_city":"Vienna","donor_zip_code":"1030","fundraiser_name":"Doe, Janet","comments":null,"on_hold":false,"change_note_public":"","donor_date_of_birth":"1999-01-05","donor_country":"AT","welcome_email_status":"sent","donor_first_name":"John","campaign_type":1,"organisation_id":null,"special1":"","campaign_type2":"city_campaign","donor_mobile":"+43 680 1234321","donor_sex":1,"donor_occupation":6,"donor_phone":null,"fundraiser_code":"gpat-1337","contact_by_email":0,"change_note_private":"","special2":"","donor_street":"Landstraße","donor_academic_title":null,"person_id":"12345","pdf":"https://donutapp.mock/api/v1/petitions/pdf/?uid=12345","contact_by_phone":0,"customer_id":532,"createtime":"2019-01-17T10:20:41.966000Z","petition_id":"{PETITION_ID}"},{"donor_last_name":"Doe","uploadtime":"2019-01-17T10:15:53.078149Z","newsletter_optin":null,"uid":76543,"donor_house_number":"33","donor_salutation":2,"donor_email":"lisadoe@example.org","on_hold_comment":"","campaign_id":51,"agency_id":"","donor_age_in_years":25,"donor_city":"Graz","donor_zip_code":"8041","fundraiser_name":"Doe, Janet","comments":null,"on_hold":false,"change_note_public":"","donor_date_of_birth":"1994-03-11","donor_country":"AT","welcome_email_status":"sent","donor_first_name":"Lisa","campaign_type":1,"organisation_id":null,"special1":"","campaign_type2":"city_campaign","donor_mobile":null,"donor_sex":2,"donor_occupation":6,"donor_phone":"+43 664 1234543","fundraiser_code":"gpat-1337","contact_by_email":0,"change_note_private":"","special2":"","donor_street":"Rathausplatz","donor_academic_title":null,"person_id":"34567","pdf":"https://donutapp.io/api/v1/petitions/pdf/?uid=76543","contact_by_phone":0,"customer_id":532,"createtime":"2019-01-17T10:15:47.396000Z","petition_id":"{PETITION_ID}"}]}';
+  const PETITION_RESPONSE = '{"count":2,"total_pages":1,"next":null,"previous":null,"results":[{"donor_last_name":"Doe","uploadtime":"2019-01-17T10:20:37.649402Z","newsletter_optin":"1","uid":12345,"donor_house_number":"13","donor_salutation":2,"donor_email":"johndoe@example.com","on_hold_comment":"","campaign_id":51,"agency_id":"","donor_age_in_years":20,"donor_city":"Vienna","donor_zip_code":"1030","fundraiser_name":"Doe, Janet","comments":null,"on_hold":false,"change_note_public":"","donor_date_of_birth":"1999-01-05","donor_country":"AT","welcome_email_status":"sent","donor_first_name":"John","campaign_type":1,"organisation_id":null,"special1":"","campaign_type2":"city_campaign","donor_mobile":"+43 680 1234321","donor_sex":1,"donor_occupation":6,"donor_phone":null,"fundraiser_code":"gpat-1337","contact_by_email":0,"change_note_private":"","special2":"","donor_street":"Landstraße","donor_academic_title":null,"person_id":"12345","pdf":"https://donutapp.mock/api/v1/petitions/pdf/?uid=12345","contact_by_phone":0,"customer_id":532,"createtime":"2019-01-17T10:20:41.966000Z","petition_id":"{PETITION_ID}"},{"donor_last_name":"Doe","uploadtime":"2019-01-17T10:15:53.078149Z","newsletter_optin":null,"uid":76543,"donor_house_number":"33","donor_salutation":2,"donor_email":"lisadoe@example.org","on_hold_comment":"","campaign_id":51,"agency_id":"","donor_age_in_years":25,"donor_city":"Graz","donor_zip_code":"8041","fundraiser_name":"Doe, Janet","comments":null,"on_hold":false,"change_note_public":"","donor_date_of_birth":"1994-03-11","donor_country":"AT","welcome_email_status":"sent","donor_first_name":"Lisa","campaign_type":1,"organisation_id":null,"special1":"","campaign_type2":"city_campaign","donor_mobile":null,"donor_sex":2,"donor_occupation":6,"donor_phone":"+43 664 1234543","fundraiser_code":"gpat-1337","contact_by_email":0,"change_note_private":"","special2":"","donor_street":"Rathausplatz","donor_academic_title":null,"person_id":"34567","pdf":"https://donutapp.io/api/v1/petitions/pdf/?uid=76543","contact_by_phone":0,"customer_id":532,"createtime":"2019-01-17T10:15:47.396000Z","petition_id":"{PETITION_ID}"},{"donor_last_name":"Doe","uploadtime":"2019-01-17T10:15:53.078149Z","newsletter_optin":null,"uid":76542,"donor_house_number":"33","donor_salutation":2,"donor_email":null,"on_hold_comment":"","campaign_id":51,"agency_id":"","donor_age_in_years":25,"donor_city":"Wien","donor_zip_code":"1030","fundraiser_name":"Doe, Janet","comments":null,"on_hold":false,"change_note_public":"","donor_date_of_birth":"1993-03-11","donor_country":"AT","welcome_email_status":"sent","donor_first_name":"Sue","campaign_type":1,"organisation_id":null,"special1":"","campaign_type2":"city_campaign","donor_mobile":null,"donor_sex":2,"donor_occupation":6,"donor_phone":"+43 677 1234543","fundraiser_code":"gpat-1337","contact_by_email":0,"change_note_private":"","special2":"","donor_street":"Rathausplatz","donor_academic_title":null,"person_id":"34568","pdf":"https://donutapp.io/api/v1/petitions/pdf/?uid=76543","contact_by_phone":0,"customer_id":532,"createtime":"2019-01-17T10:15:47.396000Z","petition_id":"{PETITION_ID}"}]}';
   const CONFIRMATION_RESPONSE = '[{"status":"success","message":"","uid":{UID},"confirmation_date":"2019-03-01T18:00:04.592107Z"}]';
 
   private $petitionID;
   private $activityTypeID;
-  private $actionActivityTypeID;
+  private $mailingActivityTypeID;
 
   public function setUpHeadless() {
     return \Civi\Test::headless()
@@ -93,10 +93,10 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
       'name'            => 'Petition',
     ]);
 
-    $this->actionActivityTypeID = reset($this->callAPISuccess('OptionValue', 'create', [
+    $this->mailingActivityTypeID = reset($this->callAPISuccess('OptionValue', 'create', [
       'option_group_id' => 'activity_type',
-      'name'            => 'Action',
-      'label'           => 'Action',
+      'name'            => 'Online_Mailing',
+      'label'           => 'Online Mailing',
     ])['values'])['value'];
 
     $this->callAPISuccess('CustomGroup', 'create', [
@@ -118,13 +118,37 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
       'title'                       => 'Email Information',
       'name'                        => 'email_information',
       'extends'                     => 'Activity',
-      'extends_entity_column_value' => $this->actionActivityTypeID,
+      'extends_entity_column_value' => $this->mailingActivityTypeID,
     ]);
 
     $this->callAPISuccess('CustomField', 'create', [
       'custom_group_id' => 'email_information',
       'label'           => 'Email',
       'name'            => 'email',
+      'data_type'       => 'String',
+      'html_type'       => 'Text',
+    ]);
+
+    $this->callAPISuccess('CustomField', 'create', [
+      'custom_group_id' => 'email_information',
+      'label'           => 'Email Provider',
+      'name'            => 'email_provider',
+      'data_type'       => 'String',
+      'html_type'       => 'Text',
+    ]);
+
+    $this->callAPISuccess('CustomField', 'create', [
+      'custom_group_id' => 'email_information',
+      'label'           => 'Mailing Subject',
+      'name'            => 'mailing_subject',
+      'data_type'       => 'String',
+      'html_type'       => 'Text',
+    ]);
+
+    $this->callAPISuccess('CustomField', 'create', [
+      'custom_group_id' => 'email_information',
+      'label'           => 'Mailing Type',
+      'name'            => 'mailing_type',
       'data_type'       => 'String',
       'html_type'       => 'Text',
     ]);
@@ -252,7 +276,7 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     $activity = reset($this->callAPISuccess('Activity', 'get', [
       'target_contact_id' => $contact['id'],
       'campaign_id'       => 'DD',
-      'activity_type_id'  => $this->actionActivityTypeID,
+      'activity_type_id'  => $this->mailingActivityTypeID,
     ])['values']);
 
     // activity_date_time should match signature date
@@ -272,6 +296,47 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     );
     // email should be stored in custom field
     $this->assertEquals('johndoe@example.com', $activity[$email_field]);
+  }
+
+  public function testNewsletter() {
+    CRM_Donutapp_API_Client::setupClient(['handler' => $this->getMockStack()]);
+    $processor = new CRM_Donutapp_Processor_Greenpeace_Petition([
+      'client_id'     => 'client-id',
+      'client_secret' => 'client-secret',
+      'confirm'       => TRUE,
+      'limit'         => 100,
+    ]);
+    $processor->process();
+
+    $newsletter_group = civicrm_api3('Group', 'getvalue', [
+      'title'  => 'Community NL',
+      'return' => 'id',
+    ]);
+
+    // contact with email
+    $contact_id = $this->callAPISuccess('Contact', 'getvalue', [
+      'email'  => 'johndoe@example.com',
+      'return' => 'id',
+    ]);
+    $result = civicrm_api3('GroupContact', 'get', [
+      'group_id'   => $newsletter_group,
+      'contact_id' => $contact_id,
+    ]);
+    // ... should have newsletter group
+    $this->assertEquals(1, $result['count']);
+
+    // contact without email
+    $contact_id = $this->callAPISuccess('Contact', 'getvalue', [
+      'first_name' => 'Sue',
+      'last_name'  => 'Doe',
+      'return'     => 'id',
+    ]);
+    $result = civicrm_api3('GroupContact', 'get', [
+      'group_id'   => $newsletter_group,
+      'contact_id' => $contact_id,
+    ]);
+    // ... should not have newsletter group
+    $this->assertEquals(0, $result['count']);
   }
 
 }

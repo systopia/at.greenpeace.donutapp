@@ -116,24 +116,31 @@ class CRM_Donutapp_Processor_Greenpeace_Petition extends CRM_Donutapp_Processor_
       if (empty($phone)) {
         $phone = $petition->donor_phone;
       }
+      $email = $petition->donor_email;
 
       $params = [
         'prefix'              => $prefix,
         'first_name'          => $petition->donor_first_name,
         'last_name'           => $petition->donor_last_name,
         'birth_date'          => $petition->donor_date_of_birth,
-        'phone'               => $phone,
-        'email'               => $petition->donor_email,
         'campaign_id'         => $this->getCampaign($petition),
         'medium_id'           => CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'medium_id', 'in_person'),
         'petition_id'         => $petition->petition_id,
-        'newsletter'          => $petition->newsletter_optin,
         'street_address'      => trim($petition->donor_street . ' ' . $petition->donor_house_number),
         'postal_code'         => $petition->donor_zip_code,
         'city'                => $petition->donor_city,
         'country'             => $petition->donor_country,
         'signature_date'      => $signature_date->format('YmdHis'),
       ];
+
+      if (!empty($email)) {
+        $params['email'] = $email;
+        $params['newsletter'] = 1;
+      }
+      if (!empty($phone)) {
+        $params['phone'] = $phone;
+      }
+
       $dialoger = $this->findOrCreateDialoger($petition);
       if (is_null($dialoger)) {
         CRM_Core_Error::debug_log_message('Unable to create dialoger "' . $petition->fundraiser_code . '"');
