@@ -9,8 +9,9 @@ class CRM_Donutapp_Util {
       'activity_type_id'   => self::IMPORT_ERROR_ACTIVITY_TYPE,
       'subject'            => 'DonutApp ' . $component . ' Error',
       'status_id'          => 'Scheduled',
-      'details'            => '<pre>' . $message . "\n" . print_r($context, true) . '</pre>',
+      'details'            => '<pre>' . $message . "\n" . print_r($context, TRUE) . '</pre>',
     ];
     civicrm_api3('Activity', 'create', $params);
   }
+
 }

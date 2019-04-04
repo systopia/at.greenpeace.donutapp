@@ -20,4 +20,5 @@ abstract class CRM_Donutapp_API_Entity {
     }
     return NULL;
   }
+
 }
