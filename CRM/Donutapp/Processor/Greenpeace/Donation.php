@@ -145,6 +145,12 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
         $prefix = 'Frau';
         break;
     }
+
+    $phone = $donation->donor_mobile;
+    if (empty($phone)) {
+      $phone = $donation->donor_phone;
+    }
+
     // compile contact data
     $contact_data = [
       'formal_title'   => $donation->donor_academic_title,
@@ -157,7 +163,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
       'city'           => $donation->donor_city,
       'street_address' => trim($donation->donor_street) . ' ' . trim($donation->donor_house_number),
       'email'          => $donation->donor_email,
-      'phone'          => $donation->donor_phone,
+      'phone'          => $phone,
     ];
 
     // remove empty attributes to prevent creation of useless diff activity
