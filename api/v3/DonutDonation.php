@@ -32,6 +32,13 @@ function _civicrm_api3_donut_donation_import_spec(&$spec) {
     'api.required' => 1,
   ];
 
+  $spec['campaign_id'] = [
+    'name'         => 'campaign_id',
+    'title'        => 'Campaign ID',
+    'type'         => CRM_Utils_TYPE::T_STRING,
+    'api.required' => 1,
+  ];
+
   $spec['confirm'] = [
     'name'         => 'confirm',
     'title'        => 'Confirm donation retrieval?',

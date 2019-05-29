@@ -24,6 +24,7 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
   private $petitionID;
   private $activityTypeID;
   private $mailingActivityTypeID;
+  private $campaignId;
 
   public function setUpHeadless() {
     return \Civi\Test::headless()
@@ -71,11 +72,11 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
       'name'      => 'Dialoger',
     ]);
 
-    $this->callAPISuccess('Campaign', 'create', [
+    $this->campaignId = reset($this->callAPISuccess('Campaign', 'create', [
       'name'                => 'DD',
       'title'               => 'Direct Dialog',
       'external_identifier' => 'DD',
-    ]);
+    ])['values'])['id'];
 
     $this->callAPISuccess('Group', 'create', [
       'title' => 'Community NL',
@@ -160,17 +161,20 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
   }
 
   private function setUpXcm() {
-    $config = CRM_Xcm_Configuration::getConfigProfile();
-    $options = $config->getOptions();
-    $options['default_location_type'] = $this->callAPISuccess(
-      'LocationType',
-      'get',
-      ['is_default' => 1]
-    );
-    $options['fill_details'] = ['email', 'phone'];
-    $options['fill_details_primary'] = 1;
-    $config->setOptions($options);
-    $config->store();
+    $profiles = CRM_Xcm_Configuration::getProfileList();
+    if (!array_key_exists('engagement', $profiles)) {
+      $config = CRM_Xcm_Configuration::getConfigProfile();
+      $options = $config->getOptions();
+      $options['default_location_type'] = $this->callAPISuccess(
+        'LocationType',
+        'get',
+        ['is_default' => 1]
+      );
+      $options['fill_details'] = ['email', 'phone'];
+      $options['fill_details_primary'] = 1;
+      $config->setOptions($options);
+      $config->cloneProfile('engagement');
+    }
   }
 
   public function tearDown() {
@@ -207,6 +211,7 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     $processor = new CRM_Donutapp_Processor_Greenpeace_Petition([
       'client_id'     => 'client-id',
       'client_secret' => 'client-secret',
+      'campaign_id'   => $this->campaignId,
       'confirm'       => TRUE,
       'limit'         => 100,
     ]);
@@ -235,6 +240,7 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     $processor = new CRM_Donutapp_Processor_Greenpeace_Petition([
       'client_id'     => 'client-id',
       'client_secret' => 'client-secret',
+      'campaign_id'   => $this->campaignId,
       'confirm'       => TRUE,
       'limit'         => 100,
     ]);
@@ -245,7 +251,7 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     ]);
     $activity = reset($this->callAPISuccess('Activity', 'get', [
       'target_contact_id' => $contact['id'],
-      'campaign_id'       => 'DD',
+      'campaign_id'       => $this->campaignId,
       'activity_type_id'  => $this->activityTypeID,
     ])['values']);
     $this->assertEquals('Save the Whales', $activity['subject']);
@@ -263,6 +269,7 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     $processor = new CRM_Donutapp_Processor_Greenpeace_Petition([
       'client_id'     => 'client-id',
       'client_secret' => 'client-secret',
+      'campaign_id'   => $this->campaignId,
       'confirm'       => TRUE,
       'limit'         => 100,
     ]);
@@ -275,7 +282,7 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     // find the email action activity
     $activity = reset($this->callAPISuccess('Activity', 'get', [
       'target_contact_id' => $contact['id'],
-      'campaign_id'       => 'DD',
+      'campaign_id'       => $this->campaignId,
       'activity_type_id'  => $this->mailingActivityTypeID,
     ])['values']);
 
@@ -303,6 +310,7 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     $processor = new CRM_Donutapp_Processor_Greenpeace_Petition([
       'client_id'     => 'client-id',
       'client_secret' => 'client-secret',
+      'campaign_id'   => $this->campaignId,
       'confirm'       => TRUE,
       'limit'         => 100,
     ]);

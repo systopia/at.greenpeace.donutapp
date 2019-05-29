@@ -388,24 +388,6 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
   }
 
   /**
-   * Determine the Civi Campaign ID for a donation
-   *
-   * @todo this is currently hardcoded for internal DD and needs to return other
-   *       values based on something like the customer_id API field
-   *
-   * @param \CRM_Donutapp_API_Entity $donation
-   *
-   * @return int
-   * @throws \CiviCRM_API3_Exception
-   */
-  protected function getCampaign(CRM_Donutapp_API_Entity $donation) {
-    return civicrm_api3('Campaign', 'getsingle', [
-      'external_identifier' => 'DD_DDG',
-      'return'              => 'id'
-    ])['id'];
-  }
-
-  /**
    * Get membership type ID for a given donation
    *
    * @param \CRM_Donutapp_API_Donation $donation

@@ -27,24 +27,6 @@ class CRM_Donutapp_Processor_Greenpeace_Petition extends CRM_Donutapp_Processor_
   }
 
   /**
-   * Determine the Civi Campaign ID for a donation
-   *
-   * @todo this is currently hardcoded to the DD root campaign. It should return
-   * a subcampaign based on something like the customer_id API field
-   *
-   * @param \CRM_Donutapp_API_Entity $petition
-   *
-   * @return int
-   * @throws \CiviCRM_API3_Exception
-   */
-  protected function getCampaign(CRM_Donutapp_API_Entity $petition) {
-    return civicrm_api3('Campaign', 'getsingle', [
-      'external_identifier' => 'DD',
-      'return'              => 'id'
-    ])['id'];
-  }
-
-  /**
    * Fetch and process petitions
    *
    * @throws \CRM_Donutapp_API_Error_Authentication

@@ -2,7 +2,16 @@
 
 abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Processor_Base {
 
-  abstract protected function getCampaign(CRM_Donutapp_API_Entity $entity);
+  /**
+   * Determine the Civi Campaign ID for an API entity
+   *
+   * @param \CRM_Donutapp_API_Entity $entity
+   *
+   * @return int
+   */
+  protected function getCampaign(CRM_Donutapp_API_Entity $entity) {
+    return $this->params['campaign_id'];
+  }
 
   /**
    * Find or create a dialoger based on the dialoger ID
