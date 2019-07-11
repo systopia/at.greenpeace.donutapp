@@ -27,11 +27,12 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
     }
     $dialoger_id = $match[1];
     $dialoger_id_field = 'custom_' . CRM_Core_BAO_CustomField::getCustomFieldID('dialoger_id', 'dialoger_data');
-    // lookup dialoger by dialoger_id
+    // lookup dialoger by dialoger_id, get the first match
     $dialoger = civicrm_api3('Contact', 'get', [
       $dialoger_id_field => $dialoger_id,
       'contact_sub_type' => 'Dialoger',
-      'return'           => 'id'
+      'return'           => 'id',
+      'options'          => ['limit' => 1],
     ]);
     if (empty($dialoger['id'])) {
       // no matching dialoger found, create with dialoger_id and name
