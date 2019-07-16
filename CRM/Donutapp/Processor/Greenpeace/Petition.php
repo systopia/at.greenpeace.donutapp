@@ -117,7 +117,9 @@ class CRM_Donutapp_Processor_Greenpeace_Petition extends CRM_Donutapp_Processor_
 
       if (!empty($email)) {
         $params['email'] = $email;
-        $params['newsletter'] = 1;
+        if ($petition->newsletter_optin == '1') {
+          $params['newsletter'] = 1;
+        }
       }
       if (!empty($phone)) {
         $params['phone'] = $phone;
