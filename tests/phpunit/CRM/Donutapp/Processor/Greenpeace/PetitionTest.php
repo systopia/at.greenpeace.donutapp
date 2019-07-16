@@ -321,7 +321,7 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
       'return' => 'id',
     ]);
 
-    // contact with email
+    // contact with newsletter_optin = 1 ...
     $contact_id = $this->callAPISuccess('Contact', 'getvalue', [
       'email'  => 'johndoe@example.com',
       'return' => 'id',
@@ -333,10 +333,9 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     // ... should have newsletter group
     $this->assertEquals(1, $result['count']);
 
-    // contact without email
+    // contact with newsletter_optin != 1 ...
     $contact_id = $this->callAPISuccess('Contact', 'getvalue', [
-      'first_name' => 'Sue',
-      'last_name'  => 'Doe',
+      'email'      => 'lisadoe@example.org',
       'return'     => 'id',
     ]);
     $result = civicrm_api3('GroupContact', 'get', [
