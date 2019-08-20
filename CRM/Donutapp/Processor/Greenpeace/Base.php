@@ -83,22 +83,36 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
     ];
 
     $bounced = FALSE;
-    switch ($entity->welcome_email_status) {
-      case 'bounce':
-      case 'hard_bounce':
-        $bounced = TRUE;
+    $email_status = $entity->welcome_email_status;
+    if (!empty($email_status)) {
+      switch ($email_status) {
+        case 'bounce':
+        case 'hard_bounce':
+          $bounced = TRUE;
         // no break
-      case 'sent':
-      case 'open':
-        $email_activity = $this->addEmailActivity(
-          $contactId,
-          $parentActivityId,
-          $this->getCampaign($entity),
-          $entity->donor_email,
-          $this->getEmailSubject($entity),
-          $apiParams
-        );
-        break;
+        case 'sent':
+        case 'open':
+        case 'click':
+          $email_activity = $this->addEmailActivity(
+            $contactId,
+            $parentActivityId,
+            $this->getCampaign($entity),
+            $entity->donor_email,
+            $this->getEmailSubject($entity),
+            $apiParams
+          );
+          break;
+
+        case 'queued':
+        case 'failed':
+        case 'blocked':
+        case 'retrying':
+          // no-op
+          break;
+
+        default:
+          throw new CRM_Donutapp_Processor_Exception("Unknown value '{$email_status}' for welcome_email_status");
+      }
     }
     if ($bounced) {
       $bounce_type = 'Softbounce';
