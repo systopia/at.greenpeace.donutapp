@@ -238,11 +238,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
     $signature_date->setTimezone(new DateTimeZone(date_default_timezone_get()));
 
     // process start date
-    $mandate_data['start_date'] = $join_date->format('Ymd');
-    // if we're late with importing, set start date to today
-    if ($mandate_data['start_date'] < $now->format('Ymd')) {
-      $mandate_data['start_date'] = $now->format('Ymd');
-    }
+    $mandate_data['start_date'] = $now->format('Ymd');
     $mandate_data['cycle_day'] = $this->getNextCycleDay($mandate_data['start_date']);
 
     // check parameters
@@ -270,7 +266,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
       'contact_id'                                           => $contactId,
       'membership_type_id'                                   => $this->getMembershipType($donation),
       'join_date'                                            => $join_date->format('Ymd'),
-      'start_date'                                           => $signature_date->format('YmdHis'),
+      'start_date'                                           => $now->format('Ymd'),
       'campaign_id'                                          => $this->getCampaign($donation),
       'membership_general.membership_channel'                => $channel,
       'membership_general.membership_contract'               => $donation->person_id,
