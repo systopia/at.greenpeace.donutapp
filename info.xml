@@ -22,7 +22,6 @@
     <ext>de.systopia.contract</ext>
     <ext>com.cividesk.normalize</ext>
     <ext>org.project60.sepa</ext>
-    <ext>org.project60.bic</ext>
   </requires>
   <compatibility>
     <ver>5.7</ver>

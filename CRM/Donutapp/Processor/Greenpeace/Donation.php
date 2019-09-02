@@ -203,26 +203,6 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
       'frequency_interval' => 12 / $donation->direct_debit_interval,
     ];
 
-    // use Little BIC extension to look up BIC via IBAN
-    try {
-      $result = civicrm_api3('Bic', 'getfromiban', [
-        'iban' => $iban,
-      ]);
-      if (!empty($result['bic'])) {
-        $mandate_data['bic'] = $result['bic'];
-      }
-    }
-    catch (Exception $e) {
-      CRM_Core_Error::debug_log_message(
-        "BIC lookup failed for IBAN '{$mandate_data['iban']}'"
-      );
-    }
-
-    // if BIC lookup was unsuccessful, fall back to BIC provided by DonutApp
-    if (empty($mandate_data['bic'])) {
-      $mandate_data['bic'] = strtoupper($donation->bank_account_bic);
-    }
-
     // comma is decimal separator, no thousands separator
     $annualAmount = str_replace(',', '.', $donation->donation_amount_annual);
     $mandate_data['amount'] = number_format($annualAmount / $donation->direct_debit_interval, 2, '.', '');
@@ -242,7 +222,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
     $mandate_data['cycle_day'] = $this->getNextCycleDay($mandate_data['start_date']);
 
     // check parameters
-    $required_params = ['bic', 'iban', 'start_date', 'cycle_day', 'contact_id', 'amount', 'campaign_id'];
+    $required_params = ['iban', 'start_date', 'cycle_day', 'contact_id', 'amount', 'campaign_id'];
     foreach ($required_params as $required_param) {
       if (empty($mandate_data[$required_param])) {
         throw new CRM_Donutapp_Processor_Exception(
@@ -272,7 +252,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
       'membership_general.membership_contract'               => $donation->person_id,
       'membership_general.membership_dialoger'               => $dialoger,
       'membership_payment.membership_recurring_contribution' => $mandate['entity_id'],
-      'membership_payment.from_ba'                           => CRM_Contract_BankingLogic::getOrCreateBankAccount($contactId, $mandate_data['iban'], $mandate_data['bic']),
+      'membership_payment.from_ba'                           => CRM_Contract_BankingLogic::getOrCreateBankAccount($contactId, $mandate_data['iban'], NULL),
       'membership_payment.to_ba'                             => CRM_Contract_BankingLogic::getCreditorBankAccount(),
     ];
     $membership = civicrm_api3('Contract', 'create', $contract_data);
