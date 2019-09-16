@@ -49,12 +49,12 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
       // fetch campaign title for contact source
       $source = civicrm_api3('Campaign', 'getvalue', [
         'external_identifier' => 'DD',
-        'return' => 'title'
+        'return'              => 'title',
       ]);
 
       // create dialoger. We assume they started on the first of this month
       $dialoger = civicrm_api3('Contact', 'create', [
-        'contact_type' => 'Individual',
+        'contact_type'        => 'Individual',
         'contact_sub_type'    => 'Dialoger',
         'last_name'           => $last_name,
         'first_name'          => $first_name,
@@ -79,7 +79,7 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
     $create_date = new DateTime($entity->createtime);
     $create_date->setTimezone(new DateTimeZone(date_default_timezone_get()));
     $apiParams = [
-      'activity_date_time' => $create_date->format('YmdHis')
+      'activity_date_time' => $create_date->format('YmdHis'),
     ];
 
     $bounced = FALSE;
@@ -89,9 +89,13 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
         case 'bounce':
         case 'hard_bounce':
           $bounced = TRUE;
-        // no break
+          // no break
         case 'sent':
         case 'open':
+        case 'spam':
+          // spam means email was reported as spam by the recipient, not that
+          // the receiving MTA flagged the message as spam, so delivery was
+          // successful. see https://app.mailjet.com/docs/email_status
         case 'click':
           $email_activity = $this->addEmailActivity(
             $contactId,
