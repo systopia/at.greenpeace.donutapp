@@ -1,9 +1,5 @@
 <?php
 
-use CRM_Donutapp_ExtensionUtil as E;
-use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
-use Civi\Test\TransactionalInterface;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
@@ -14,8 +10,7 @@ use GuzzleHttp\Psr7\Response;
  *
  * @group headless
  */
-class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
-  use \Civi\Test\Api3TestTrait;
+class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends CRM_Donutapp_Processor_Greenpeace_BaseTest {
 
   const SUCCESSFUL_AUTH_RESPONSE = '{"access_token": "secret", "token_type": "Bearer", "expires_in": 172800, "scope": "read write"}';
   const PETITION_RESPONSE = '{"count":2,"total_pages":1,"next":null,"previous":null,"results":[{"donor_last_name":"Doe","uploadtime":"2019-01-17T10:20:37.649402Z","newsletter_optin":"1","uid":12345,"donor_house_number":"13","donor_salutation":2,"donor_email":"johndoe@example.com","on_hold_comment":"","campaign_id":51,"agency_id":"","donor_age_in_years":20,"donor_city":"Vienna","donor_zip_code":"1030","fundraiser_name":"Doe, Janet","comments":null,"on_hold":false,"change_note_public":"","donor_date_of_birth":"1999-01-05","donor_country":"AT","welcome_email_status":"sent","donor_first_name":"John","campaign_type":1,"organisation_id":null,"special1":"","campaign_type2":"city_campaign","donor_mobile":"+43 680 1234321","donor_sex":1,"donor_occupation":6,"donor_phone":null,"fundraiser_code":"gpat-1337","contact_by_email":0,"change_note_private":"","special2":"","donor_street":"Landstraße","donor_academic_title":null,"person_id":"12345","pdf":"https://donutapp.mock/api/v1/petitions/pdf/?uid=12345","contact_by_phone":0,"customer_id":532,"createtime":"2019-01-17T10:20:41.966000Z","petition_id":"{PETITION_ID}"},{"donor_last_name":"Doe","uploadtime":"2019-01-17T10:15:53.078149Z","newsletter_optin":null,"uid":76543,"donor_house_number":"33","donor_salutation":2,"donor_email":"lisadoe@example.org","on_hold_comment":"","campaign_id":51,"agency_id":"","donor_age_in_years":25,"donor_city":"Graz","donor_zip_code":"8041","fundraiser_name":"Doe, Janet","comments":null,"on_hold":false,"change_note_public":"","donor_date_of_birth":"1994-03-11","donor_country":"AT","welcome_email_status":"sent","donor_first_name":"Lisa","campaign_type":1,"organisation_id":null,"special1":"","campaign_type2":"city_campaign","donor_mobile":null,"donor_sex":2,"donor_occupation":6,"donor_phone":"+43 664 1234543","fundraiser_code":"gpat-1337","contact_by_email":0,"change_note_private":"","special2":"","donor_street":"Rathausplatz","donor_academic_title":null,"person_id":"34567","pdf":"https://donutapp.io/api/v1/petitions/pdf/?uid=76543","contact_by_phone":0,"customer_id":532,"createtime":"2019-01-17T10:15:47.396000Z","petition_id":"{PETITION_ID}"},{"donor_last_name":"Doe","uploadtime":"2019-01-17T10:15:53.078149Z","newsletter_optin":null,"uid":76542,"donor_house_number":"33","donor_salutation":2,"donor_email":null,"on_hold_comment":"","campaign_id":51,"agency_id":"","donor_age_in_years":25,"donor_city":"Wien","donor_zip_code":"1030","fundraiser_name":"Doe, Janet","comments":null,"on_hold":false,"change_note_public":"","donor_date_of_birth":"1993-03-11","donor_country":"AT","welcome_email_status":"sent","donor_first_name":"Sue","campaign_type":1,"organisation_id":null,"special1":"","campaign_type2":"city_campaign","donor_mobile":null,"donor_sex":2,"donor_occupation":6,"donor_phone":"+43 677 1234543","fundraiser_code":"gpat-1337","contact_by_email":0,"change_note_private":"","special2":"","donor_street":"Rathausplatz","donor_academic_title":null,"person_id":"34568","pdf":"https://donutapp.io/api/v1/petitions/pdf/?uid=76543","contact_by_phone":0,"customer_id":532,"createtime":"2019-01-17T10:15:47.396000Z","petition_id":"{PETITION_ID}"}]}';
@@ -36,12 +31,6 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
 
   public function setUp() {
     parent::setUp();
-    // test dates against UTC
-    date_default_timezone_set('UTC');
-
-    // use mock URLs for DonutApp API
-    CRM_Donutapp_API_Client::setAPIEndpoint('https://donutapp.mock/api/v1/');
-    CRM_Donutapp_API_Client::setOAuth2Endpoint('https://donutapp.mock/o/token/?grant_type=client_credentials');
 
     // mock authentication
     $mock = new MockHandler([
@@ -51,12 +40,6 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
     CRM_Donutapp_API_Client::setupOauth2Client(['handler' => $stack]);
 
     $this->setUpFieldsAndData();
-
-    // pretend we're userID 1
-    $session = CRM_Core_Session::singleton();
-    $session->set('userID', 1);
-
-    $this->setUpXcm();
   }
 
   private function setUpFieldsAndData() {
@@ -158,27 +141,6 @@ class CRM_Donutapp_Processor_Greenpeace_PetitionTest extends \PHPUnit_Framework_
       'title'            => 'Save the Whales',
       'activity_type_id' => $this->activityTypeID,
     ])['id'];
-  }
-
-  private function setUpXcm() {
-    $profiles = CRM_Xcm_Configuration::getProfileList();
-    if (!array_key_exists('engagement', $profiles)) {
-      $config = CRM_Xcm_Configuration::getConfigProfile();
-      $options = $config->getOptions();
-      $options['default_location_type'] = $this->callAPISuccess(
-        'LocationType',
-        'get',
-        ['is_default' => 1]
-      );
-      $options['fill_details'] = ['email', 'phone'];
-      $options['fill_details_primary'] = 1;
-      $config->setOptions($options);
-      $config->cloneProfile('engagement');
-    }
-  }
-
-  public function tearDown() {
-    parent::tearDown();
   }
 
   private function getMockStack() {

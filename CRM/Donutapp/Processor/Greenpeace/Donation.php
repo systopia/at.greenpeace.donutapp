@@ -57,7 +57,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
           'Uncaught Exception in CRM_Donutapp_Processor_Donation::process'
         );
         CRM_Core_Error::debug_var('Exception Details', [
-          'message' => $e->getMessage(),
+          'message'   => $e->getMessage(),
           'exception' => $e
         ]);
         // Create Import Error Activity
