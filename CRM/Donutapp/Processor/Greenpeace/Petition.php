@@ -141,13 +141,18 @@ class CRM_Donutapp_Processor_Greenpeace_Petition extends CRM_Donutapp_Processor_
         )['values']
       );
 
-      $parent_activity_id = civicrm_api3('Activity', 'getvalue', [
+      $parent_activity_id = reset(civicrm_api3('Activity', 'get', [
         'return'             => 'id',
         'activity_type_id'   => 'Petition',
         'target_contact_id'  => $signature_response['id'],
         'activity_date_time' => $signature_date->format('YmdHis'),
-        'campaign_id'        => $this->getCampaign($petition)
-      ]);
+        'campaign_id'        => $this->getCampaign($petition),
+        'source_record_id'   => $petition->petition_id,
+        'options'            => [
+          'limit' => 1,
+          'sort'  => 'id DESC'
+        ],
+      ])['values'])['id'];
       $this->processWelcomeEmail($petition, $signature_response['id'], $parent_activity_id);
 
       // Should we confirm retrieval?
