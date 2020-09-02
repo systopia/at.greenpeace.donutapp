@@ -10,7 +10,11 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
    * @return int
    */
   protected function getCampaign(CRM_Donutapp_API_Entity $entity) {
-    return $this->params['campaign_id'];
+    // hi. you might be thinking: why isn't this using the null coalescing operator?
+    // that's because we don't trust Formunauts not to send empty strings or other
+    // empty-ish values that are not NULL, so empty() is safer here.
+    $external_campaign_id = $entity->external_campaign_id;
+    return empty($external_campaign_id) ? $this->params['campaign_id'] : $external_campaign_id;
   }
 
   /**
