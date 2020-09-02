@@ -108,7 +108,7 @@ class CRM_Donutapp_Processor_Greenpeace_Petition extends CRM_Donutapp_Processor_
         'campaign_id'         => $this->getCampaign($petition),
         'medium_id'           => CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'medium_id', 'in_person'),
         'petition_id'         => $petition->petition_id,
-        'street_address'      => trim($petition->donor_street . ' ' . $petition->donor_house_number),
+        'street_address'      => trim(trim($petition->donor_street . ' ' . $petition->donor_house_number)),
         'postal_code'         => $petition->donor_zip_code,
         'city'                => $petition->donor_city,
         'country'             => $petition->donor_country,

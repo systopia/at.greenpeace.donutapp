@@ -14,6 +14,10 @@ class ComposerStaticInit342f99b47f3da81d981f13d4a2c1cfd8
     );
 
     public static $prefixLengthsPsr4 = array (
+        'T' => 
+        array (
+            'Tdely\\Luhn\\' => 11,
+        ),
         'P' => 
         array (
             'Psr\\Http\\Message\\' => 17,
@@ -27,6 +31,10 @@ class ComposerStaticInit342f99b47f3da81d981f13d4a2c1cfd8
     );
 
     public static $prefixDirsPsr4 = array (
+        'Tdely\\Luhn\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/tdely/luhn/src',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',

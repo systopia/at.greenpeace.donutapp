@@ -1,5 +1,7 @@
 <?php
 
+use Tdely\Luhn\Luhn;
+
 class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_Greenpeace_Base {
 
   /**
@@ -153,6 +155,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
 
     // compile contact data
     $contact_data = [
+      'xcm_profile'    => 'DD',
       'formal_title'   => $donation->donor_academic_title,
       'first_name'     => $donation->donor_first_name,
       'last_name'      => $donation->donor_last_name,
@@ -161,10 +164,20 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
       'country_id'     => $donation->donor_country,
       'postal_code'    => $donation->donor_zip_code,
       'city'           => $donation->donor_city,
-      'street_address' => trim($donation->donor_street) . ' ' . trim($donation->donor_house_number),
+      'street_address' => trim(trim($donation->donor_street) . ' ' . trim($donation->donor_house_number)),
       'email'          => $donation->donor_email,
       'phone'          => $phone,
     ];
+
+    $external_contact_id = $donation->external_contact_id;
+    if (!empty($external_contact_id)) {
+      if (Luhn::isValid($external_contact_id)) {
+        // remove trailing check digit
+        $contact_data['id'] = substr($external_contact_id, 0, -1);
+      } else {
+        Civi::log()->warning("[donutapp] Got invalid value for external_contact_id: '{$external_contact_id}'");
+      }
+    }
 
     // remove empty attributes to prevent creation of useless diff activity
     foreach ($contact_data as $key => $value) {

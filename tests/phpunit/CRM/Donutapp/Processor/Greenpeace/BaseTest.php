@@ -44,8 +44,10 @@ abstract class CRM_Donutapp_Processor_Greenpeace_BaseTest extends \PHPUnit_Frame
       );
       $options['fill_details'] = ['email', 'phone'];
       $options['fill_details_primary'] = 1;
+      $options['match_contact_id'] = 1;
       $config->setOptions($options);
       $config->cloneProfile('engagement');
+      $config->cloneProfile('DD');
     }
   }
 
