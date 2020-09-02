@@ -360,7 +360,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
   }
 
   /**
-   * Add contact to newsletter group if email is present
+   * Add contact to newsletter group if email and newsletter_optin are set
    *
    * @param \CRM_Donutapp_API_Donation $donation
    * @param $contactId
@@ -370,7 +370,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
    */
   protected function addToNewsletterGroup(CRM_Donutapp_API_Donation $donation, $contactId) {
     $email = $donation->donor_email;
-    if (empty($email)) {
+    if (empty($email) || $donation->newsletter_optin != '1') {
       return FALSE;
     }
     $this->addGroup($contactId, 'Community NL');
