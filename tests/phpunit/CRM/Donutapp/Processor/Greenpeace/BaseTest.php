@@ -16,6 +16,9 @@ use GuzzleHttp\Psr7\Response;
 abstract class CRM_Donutapp_Processor_Greenpeace_BaseTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
   use \Civi\Test\Api3TestTrait;
 
+  protected $campaignId;
+  protected $mailingActivityTypeID;
+
   public function setUp() {
     parent::setUp();
     // test dates against UTC
@@ -30,6 +33,7 @@ abstract class CRM_Donutapp_Processor_Greenpeace_BaseTest extends \PHPUnit_Frame
     $session->set('userID', 1);
 
     $this->setUpXcm();
+    $this->setupFieldsAndData();
   }
 
   private function setUpXcm() {
@@ -63,6 +67,93 @@ abstract class CRM_Donutapp_Processor_Greenpeace_BaseTest extends \PHPUnit_Frame
         'sort'  => 'activity_date_time DESC'
       ],
     ])['values']);
+  }
+
+  protected function setupFieldsAndData() {
+    $this->callApiSuccess('OptionValue', 'create', [
+      'option_group_id' => 'activity_type',
+      'name'            => 'streetimport_error',
+      'label'           => 'Import Error',
+      'is_active'       => 1
+    ]);
+
+    if ($this->callAPISuccess('ContactType', 'getcount', ['name' => 'Dialoger']) == 0) {
+      $this->callAPISuccess('ContactType', 'create', [
+        'parent_id' => 'Individual',
+        'name'      => 'Dialoger',
+      ]);
+    }
+
+    $this->campaignId = reset($this->callAPISuccess('Campaign', 'create', [
+      'name'                => 'DD',
+      'title'               => 'Direct Dialog',
+      'external_identifier' => 'DD',
+    ])['values'])['id'];
+
+    $this->callAPISuccess('Group', 'create', [
+      'title' => 'Community NL',
+      'name'  => 'Community_NL',
+    ]);
+
+    $this->mailingActivityTypeID = reset($this->callAPISuccess('OptionValue', 'create', [
+      'option_group_id' => 'activity_type',
+      'name'            => 'Online_Mailing',
+      'label'           => 'Online Mailing',
+    ])['values'])['value'];
+
+    $this->callAPISuccess('CustomGroup', 'create', [
+      'title' => 'Email Information',
+      'name' => 'email_information',
+      'extends' => 'Activity',
+      'extends_entity_column_value' => $this->mailingActivityTypeID,
+    ]);
+
+    $this->callAPISuccess('CustomField', 'create', [
+      'custom_group_id' => 'email_information',
+      'label' => 'Email',
+      'name' => 'email',
+      'data_type' => 'String',
+      'html_type' => 'Text',
+    ]);
+
+    $this->callAPISuccess('CustomField', 'create', [
+      'custom_group_id' => 'email_information',
+      'label' => 'Email Provider',
+      'name' => 'email_provider',
+      'data_type' => 'String',
+      'html_type' => 'Text',
+    ]);
+
+    $this->callAPISuccess('CustomField', 'create', [
+      'custom_group_id' => 'email_information',
+      'label' => 'Mailing Subject',
+      'name' => 'mailing_subject',
+      'data_type' => 'String',
+      'html_type' => 'Text',
+    ]);
+
+    $this->callAPISuccess('CustomField', 'create', [
+      'custom_group_id' => 'email_information',
+      'label' => 'Mailing Type',
+      'name' => 'mailing_type',
+      'data_type' => 'String',
+      'html_type' => 'Text',
+    ]);
+
+    $this->callAPISuccess('CustomGroup', 'create', [
+      'title' => 'Dialoger Information',
+      'name' => 'dialoger_data',
+      'extends' => 'Individual',
+      'extends_entity_column_value' => 'Dialoger',
+    ]);
+
+    $this->callAPISuccess('CustomField', 'create', [
+      'custom_group_id' => 'dialoger_data',
+      'name' => 'dialoger_id',
+      'data_type' => 'String',
+      'html_type' => 'Text',
+      'label' => 'Dialoger',
+    ]);
   }
 
 }

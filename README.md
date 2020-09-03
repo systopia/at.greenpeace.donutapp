@@ -1,5 +1,7 @@
 # CiviCRM DonutApp Integration
 
+[![CircleCI](https://circleci.com/gh/greenpeace-cee/at.greenpeace.donutapp.svg?style=svg)](https://circleci.com/gh/greenpeace-cee/at.greenpeace.donutapp)
+
 This extension connects CiviCRM with [DonutApp](https://donutapp.io/app/) by [Formunauts](https://www.formunauts.at/en/).
 
 The extension is licensed under [AGPL-3.0](LICENSE.txt).
