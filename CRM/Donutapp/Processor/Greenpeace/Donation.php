@@ -324,9 +324,6 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
 
     // @todo: should not be hardcoded in case we want to add other incentives
     $order_type = 'T-Shirt';
-    if ($donation->membership_type == 'Guardian of the Ocean') {
-      $order_type = 'T-Shirt: Guardian Of The Oceans';
-    }
 
     if (empty($shirt_type)) {
       // default to male
