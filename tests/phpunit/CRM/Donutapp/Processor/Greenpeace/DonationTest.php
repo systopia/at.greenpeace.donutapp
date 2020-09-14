@@ -38,31 +38,20 @@ class CRM_Donutapp_Processor_Greenpeace_DonationTest extends CRM_Donutapp_Proces
    * @throws \CiviCRM_API3_Exception
    */
   public function setUpContractExtension() {
-    // fetch the test creditor
-    $creditor_id = $this->callAPISuccess('SepaCreditor', 'getvalue', [
-      'return'  => 'id',
-      'options' => [
-        'limit' => 1
-      ],
-    ]);
-    // make sure the test creditor has a creditor_type and currency
-    // (they're not set in org.project60.sepa's db seed)
-    $this->callAPISuccess('SepaCreditor', 'create', [
-      'id'            => $creditor_id,
-      'creditor_type' => 'SEPA',
-      'currency'      => 'EUR',
-      'uses_bic'      => FALSE,
-    ]);
-    // make the creditor the default
-    CRM_Sepa_Logic_Settings::setSetting(
-      $this->callAPISuccess('SepaCreditor', 'getvalue', [
-        'return'  => 'id',
-        'options' => [
-          'limit' => 1
-        ],
-      ]),
-      'batching_default_creditor'
-    );
+    $default_creditor_id = (int) CRM_Sepa_Logic_Settings::getSetting('batching_default_creditor');
+    if (empty($default_creditor_id)) {
+      // create if there isn't
+      $creditor = $this->callAPISuccess('SepaCreditor', 'create', [
+        'creditor_type'  => 'SEPA',
+        'currency'       => 'EUR',
+        'mandate_active' => 1,
+        'iban'           => 'AT483200000012345864',
+        'uses_bic'       => FALSE,
+      ]);
+      CRM_Sepa_Logic_Settings::setSetting($creditor['id'], 'batching_default_creditor');
+    }
+    $default_creditor_id = (int) CRM_Sepa_Logic_Settings::getSetting('batching_default_creditor');
+    $this->assertNotEmpty($default_creditor_id, "There is no default SEPA creditor set");
   }
 
   public function setUp() {
