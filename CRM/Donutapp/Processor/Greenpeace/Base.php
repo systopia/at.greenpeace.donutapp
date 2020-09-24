@@ -10,11 +10,29 @@ abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Proce
    * @return int
    */
   protected function getCampaign(CRM_Donutapp_API_Entity $entity) {
-    // hi. you might be thinking: why isn't this using the null coalescing operator?
-    // that's because we don't trust Formunauts not to send empty strings or other
-    // empty-ish values that are not NULL, so empty() is safer here.
+    // hi. you might be thinking: why isn't this using the null coalescing
+    // operator for external_campaign_id? that's because we don't trust
+    // Formunauts not to send empty strings or other empty-ish values that are
+    // not NULL, so empty() is safer here.
     $external_campaign_id = $entity->external_campaign_id;
-    return empty($external_campaign_id) ? $this->params['campaign_id'] : $external_campaign_id;
+    return empty($external_campaign_id) ?
+      ($this->getMappedCampaign($entity) ?? $this->params['campaign_id']) :
+      $external_campaign_id;
+  }
+
+  /**
+   * Get the Civi campaign mapping to a DonutApp campaign
+   *
+   * @param \CRM_Donutapp_API_Entity $entity
+   */
+  protected function getMappedCampaign(CRM_Donutapp_API_Entity $entity) {
+    $entity_campaign = $entity->campaign_id;
+    $map = Civi::settings()->get('donutapp_campaign_map') ?? [];
+    if (empty($entity_campaign) || empty($map[$entity_campaign])) {
+      return NULL;
+    }
+
+    return $map[$entity_campaign];
   }
 
   /**
