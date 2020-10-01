@@ -90,19 +90,28 @@ abstract class CRM_Donutapp_Processor_Naturherzen_Base extends CRM_Donutapp_Proc
    *
    * @return int
    */
-  protected function getCampaign(CRM_Donutapp_API_Entity $entity) {
-    // in this case we use a fixed campaign
-    $campaign_id = 11;
-
+  protected function getCampaignID(CRM_Donutapp_API_Entity $entity) {
     // make sure it exists
-    static $campaign_exists = null;
-    if ($campaign_exists === null) {
-      $campaign_exists = civicrm_api3('Campaign', 'getcount', ['id' => $campaign_id]);
-      if (!$campaign_exists) {
-        civicrm_api3('Campaign', 'create', [
-            'id' => $campaign_id,
-            'title' => 'Raise Together'
+    static $campaign_id = null;
+    if ($campaign_id === null) {
+      try {
+        $campaign_id = civicrm_api3('Campaign', 'getvalue', [
+            'name'   => 'Strassenkampagne_smito',
+            'return' => 1]);
+      } catch (CiviCRM_API3_Exception $ex) {
+        // that doesn't seem to exist
+      }
+
+      if (!$campaign_id) {
+        $result = civicrm_api3('Campaign', 'create', [
+            'name'             => 'Strassenkampagne_smito',
+            'title'            => 'Strassenkampagne Raise Together',
+            'start_date'       => '2019-07-01',
+            'is_active'        => 1,
+            'status_id'        => 2,
+//            'campaign_type_id' => 4
         ]);
+        $campaign_id = $result['id'];
       }
     }
 

@@ -161,6 +161,9 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
 //    fundraiser_code = "rt-systopia"
 //    fundraiser_name = "Fundraiser, Test"
 
+    // todo: data protection
+    // contact_by_phone
+    // contact_by_email
 
     return $contact_id;
   }
@@ -185,16 +188,21 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
       'contact_id'         => $contact_id,
       'iban'               => trim(strtoupper(preg_replace('/ +/', '', $donation->bank_account_iban))),
       'bic'                => trim(strtoupper(preg_replace('/ +/', '', $donation->bank_account_bic))),
-      'campaign_id'        => $this->getCampaign($donation),
+      'campaign_id'        => $this->getCampaignID($donation),
       'financial_type_id'  => 5, // Gönner
       'source'             => 'DonutApp API',
       'frequency_interval' => (int) (12 / $donation->direct_debit_interval),
       'frequency_unit'     => 'month',
+      'date'               => substr($donation->createtime, 0, 10),
+      'start_date'         => empty($donation->special1) ? $donation->contract_start_date : $donation->special1,
     ];
 
     // fill BIC
     if (empty($mandate_data['bic'])) {
-      // todo: resolve via little BIC extension
+      $result = civicrm_api3('Bic', 'findbyiban', ['iban' => $mandate_data['iban']]);
+      if (!empty($result['bic'])) {
+        $mandate_data['bic'] = $result['bic'];
+      }
     }
 
     // set amount - comma is decimal separator, no thousands separator
@@ -244,7 +252,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
    */
   protected function createRecruitmentActivity($donation, $contact_id, $mandate)
   {
-
+    // todo: implement
   }
 
   /**
