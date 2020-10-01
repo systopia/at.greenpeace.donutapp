@@ -75,7 +75,9 @@ function civicrm_api3_donut_donation_import($params) {
   }
 
   // run processing
+  /** @var CRM_Donutapp_Processor_Base $processor */
   $processor = new $processor_class_name($params);
+  $processor->verifySetup();
   $processor->process();
   return civicrm_api3_create_success();
 }
