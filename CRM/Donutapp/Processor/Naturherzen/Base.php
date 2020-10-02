@@ -1,4 +1,17 @@
 <?php
+/*-------------------------------------------------------+
+| DonutApp Processor for Naturherzen                     |
+| Copyright (C) 2020 SYSTOPIA                            |
+| Author: B. Endres (endres@systopia.de)                 |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL license. You can redistribute it and/or     |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++--------------------------------------------------------*/
 
 abstract class CRM_Donutapp_Processor_Naturherzen_Base extends CRM_Donutapp_Processor_Base {
 
@@ -30,7 +43,7 @@ abstract class CRM_Donutapp_Processor_Naturherzen_Base extends CRM_Donutapp_Proc
         $recruitment_activity_id = civicrm_api3('OptionValue', 'getvalue', [
             'option_group_id' => 'activity_type',
             'name'            => 'donutapp_recruitment',
-            'return'          => 'id'
+            'return'          => 'value'
         ]);
       } catch (CiviCRM_API3_Exception $ex) {
         // doesn't exist? lets create it
@@ -40,7 +53,11 @@ abstract class CRM_Donutapp_Processor_Naturherzen_Base extends CRM_Donutapp_Proc
             'label'           => "RaiseTogether Werbung",
             'is_active'       => 1,
         ]);
-        $recruitment_activity_id = $result['id'];
+        $recruitment_activity_id = civicrm_api3('OptionValue', 'getvalue', [
+            'option_group_id' => 'activity_type',
+            'name'            => 'donutapp_recruitment',
+            'return'          => 'value'
+        ]);
       }
     }
     return $recruitment_activity_id;

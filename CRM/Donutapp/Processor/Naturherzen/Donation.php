@@ -1,6 +1,20 @@
 <?php
+/*-------------------------------------------------------+
+| DonutApp Processor for Naturherzen                     |
+| Copyright (C) 2020 SYSTOPIA                            |
+| Author: B. Endres (endres@systopia.de)                 |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL license. You can redistribute it and/or     |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++--------------------------------------------------------*/
 
 use Tdely\Luhn\Luhn;
+use CRM_Donutapp_ExtensionUtil as E;
 
 class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor_Naturherzen_Base {
 
@@ -16,9 +30,9 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
     CRM_Donutapp_Util::$IMPORT_ERROR_ACTIVITY_TYPE = $this->getImportErrorActivityTypeID();
     CRM_Donutapp_API_Client::setClientId($this->params['client_id']);
     CRM_Donutapp_API_Client::setClientSecret($this->params['client_secret']);
-    $importedDonations = CRM_Donutapp_API_Donation::all(['limit' => $this->params['limit']]);
+    $donations = CRM_Donutapp_API_Donation::all(['limit' => $this->params['limit']]);
 
-    foreach ($importedDonations as $donation) {
+    foreach ($donations as $donation) {
       try {
         // preload PDF outside of transaction
         $donation->fetchPdf();
@@ -153,17 +167,35 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
       }
     }
 
+    // add fundraiser fields
+    $fundraiser_fields = [
+        'fundraiser_location' => 'custom_28', // todo: key not confirmed
+        'fundraiser_name'     => 'custom_31',
+        'createtime'          => 'custom_29',
+        'uid'                 => 'custom_30',
+        //'fundraiser_external_id' => 'custom_?',
+        //'fundraiser_code'     => 'custom_?',
+    ];
+    foreach ($fundraiser_fields as $submission_field => $civicrm_field) {
+      if (isset($donation->$submission_field)) {
+        $contact_data[$civicrm_field] = $donation->$submission_field;
+      }
+    }
+
+    // set data protection fields
+    $data_protection_fields = [
+        'contact_by_phone' => 'do_not_phone',
+        'contact_by_email' => 'do_not_email',
+        'contact_by_mail'  => 'do_not_mail',  // todo: key not confirmed
+    ];
+    foreach ($fundraiser_fields as $submission_field => $civicrm_field) {
+      $contact_data[$civicrm_field] = empty($donation->$submission_field) ? 1 : 0;
+    }
+
     // and match using XCM
     $contact_id = civicrm_api3('Contact', 'getorcreate', $contact_data)['id'];
 
-    // todo: fill fundraiser fields
-//    fundraiser_external_id = null
-//    fundraiser_code = "rt-systopia"
-//    fundraiser_name = "Fundraiser, Test"
-
-    // todo: data protection
-    // contact_by_phone
-    // contact_by_email
+    // todo: updates after? e.g. update privacy settings?
 
     return $contact_id;
   }
@@ -183,6 +215,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
    */
   protected function createMandate($donation, $contact_id)
   {
+    // todo: add a reference based on
     $mandate_data = [
       'type'               => 'RCUR',
       'contact_id'         => $contact_id,
@@ -252,36 +285,52 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
    */
   protected function createRecruitmentActivity($donation, $contact_id, $mandate)
   {
-    // todo: implement
-  }
+    // collect TODOs:
+    $todos = [];
+    // check whether the status should be 'Scheduled' instead
+    if ($mandate['status'] != 'ONHOLD') {
+      $todos[] = "Mandat muss noch verifiziert und aktiviert werden";
+    }
 
-  /**
-   * Store the contract PDF as a File entity
-   *
-   * @todo this should ideally be implemented using the Attachment.create API,
-   *       which is not possible as of Civi 5.7 due to an overly-sensitive
-   *       permission check. Switch to Attachment.create once
-   *       https://lab.civicrm.org/dev/core/issues/690 lands.
-   *
-   * @param $fileName
-   * @param $content
-   * @param $membershipId
-   *
-   * @throws CiviCRM_API3_Exception
-   */
-  protected function storeContractFile($fileName, $content, $membershipId) {
+    // compile activity data
+    $activity_data = [
+      'target_id'         => $contact_id,
+      'activity_type_id'  => $this->getRecruitmentActivityTypeID(),
+      'subject'           => 'Raise Together Recruitment (Formunauts)',
+      'activity_datetime' => date('YmdHiS'),
+      'status_id'         => empty($todos) ? 'Completed' : 'Scheduled',
+      'campaign_id'       => $this->getCampaignID($donation),
+    ];
+
+
+    // render details
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assignAll([
+        'contact'       => civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]),
+        'mandate'       => $mandate,
+        'rcontribution' => civicrm_api3('ContributionRecur', 'getsingle', ['id' => $mandate['entity_id']]),
+        'submission'    => $donation->getData(),
+        'todos'         => $todos,
+                       ]);
+    $activity_data['details'] = $smarty->fetch(E::path('resources/Naturherzen/RecruitmentActivity.tpl'));
+
+    // create activity
+    $activity = civicrm_api3('Activity', 'create', $activity_data);
+
+    // attach PDF
     $config = CRM_Core_Config::singleton();
-    $uri = CRM_Utils_File::makeFileName($fileName);
+    $uri = CRM_Utils_File::makeFileName("{$donation->uid}.pdf");
     $path = $config->customFileUploadDir . DIRECTORY_SEPARATOR . $uri;
-    file_put_contents($path, $content);
+    file_put_contents($path, $donation->pdf_content);
     $file = civicrm_api3('File', 'create', [
-      'mime_type' => 'application/pdf',
-      'uri' => $uri,
+        'mime_type'   => 'application/pdf',
+        'description' => 'Vertrag PDF',
+        'uri'         => $uri,
     ]);
-    $custom_field = 'custom_' . CRM_Core_BAO_CustomField::getCustomFieldID('contract_file', 'membership_general');
-    civicrm_api3('custom_value', 'create', [
-      'entity_id' => $membershipId,
-      $custom_field => $file['id'],
-    ]);
+    CRM_Core_DAO::executeQuery("
+        INSERT INTO civicrm_entity_file (entity_table,entity_id,file_id) 
+        VALUES ('civicrm_activity', %1, %2)", [
+          1 => [$activity['id'], 'Integer'],
+          2 => [$file['id'],     'Integer']]);
   }
 }
