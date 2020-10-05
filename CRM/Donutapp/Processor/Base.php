@@ -72,7 +72,7 @@ abstract class CRM_Donutapp_Processor_Base {
     }
 
     // build file name
-    $file_name = date('Y-m-d H:i:s') . ' ' . get_class($entity) . ' ' . $entity->$id_field . '.log';
+    $file_name = date('Y-m-d_H:i:s') . '_' . get_class($entity) . '_' . $entity->$id_field . '.log';
     $file_path = $log_folder . DIRECTORY_SEPARATOR . $file_name;
     file_put_contents($file_path, json_encode($entity->getData(), JSON_PRETTY_PRINT));
   }
