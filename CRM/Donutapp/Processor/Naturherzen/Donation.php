@@ -192,7 +192,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
         'location'            => 'custom_28', // todo: key not confirmed
         'fundraiser_name'     => 'custom_31',
         'createtime'          => 'custom_29',
-        'uid'                 => 'custom_30',
+        'uid'                 => 'custom_36',
         //'fundraiser_external_id' => 'custom_?',
         //'fundraiser_code'     => 'custom_?',
     ];
