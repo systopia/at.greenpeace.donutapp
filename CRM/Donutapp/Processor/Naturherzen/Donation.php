@@ -106,13 +106,13 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
     $contact_type = 'Individual';
     $prefix_id = '';
     $gender_id = '';
-    switch ($donation->donor_sex) {
-      case 0: // Herr
+    switch ($donation->donor_salutation) {
+      case 1: // Herr
         $gender_id = 2;
         $prefix_id = 6;
         break;
 
-      case 1: // Frau
+      case 2: // Frau
         $gender_id = 1;
         $prefix_id = 5;
         break;
@@ -121,45 +121,64 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
         $prefix_id = 7;
         break;
 
-      case 2: // Firma
+      case 4: // Firma
         $contact_type = 'Organization';
         break;
 
-      case 4: // Sonstiges
+      case 5: // Sonstiges
+        break;
+    }
+
+    switch ($donation->donor_occupation) {
+      case 1:
+        $job_title = 'Arbeiter/in';
+        break;
+
+      case 2:
+        $job_title = 'Angestellte/r';
+        break;
+
+      case 3:
+        $job_title = 'Rentner/in';
+        break;
+
+      case 4:
+        $job_title = 'Selbständig/e';
+        break;
+
+      case 5:
+        $job_title = 'Student/in';
+        break;
+
+      default:
+        $job_title = '';
         break;
     }
 
     // compile contact data
     $contact_data = [
-      'xcm_profile'    => 'donutapp',
-      'contact_type'   => $contact_type,
-      'formal_title'   => $donation->donor_academic_title,
-      'first_name'     => $donation->donor_first_name,
-      'last_name'      => $donation->donor_last_name,
-      'prefix_id'      => $prefix_id,
-      'gender_id'      => $gender_id,
-      'birth_date'     => $donation->donor_date_of_birth,
-      'country_id'     => $donation->donor_country,
-      'postal_code'    => $donation->donor_zip_code,
-      'city'           => $donation->donor_city,
-      'street_address' => trim(trim($donation->donor_street) . ' ' . trim($donation->donor_house_number)),
-      'email'          => $donation->donor_email,
-      'phone'          => $donation->donor_phone,
-      'phone2'         => $donation->donor_mobile,
+      'xcm_profile'            => 'donutapp',
+      'contact_type'           => $contact_type,
+      'formal_title'           => $donation->donor_academic_title,
+      'first_name'             => $donation->donor_first_name,
+      'last_name'              => $donation->donor_last_name,
+      'organization_name'      => $donation->donor_company_name,
+      'prefix_id'              => $prefix_id,
+      'gender_id'              => $gender_id,
+      'job_title'              => $job_title,
+      'birth_date'             => $donation->donor_date_of_birth,
+      'country_id'             => $donation->donor_country,
+      'postal_code'            => $donation->donor_zip_code,
+      'city'                   => $donation->donor_city,
+      'street_address'         => trim(trim($donation->donor_street) . ' ' . trim($donation->donor_house_number)),
+      'supplemental_address_1' => trim($donation->donor_address_addition),
+      'supplemental_address_2' => trim($donation->donor_address_addition_2),
+      'email'                  => $donation->donor_email,
+      'phone'                  => $donation->donor_phone,
+      'phone2'                 => $donation->donor_mobile,
       // for identification only:
-      'iban'           => preg_replace('/ +/', '', strtoupper($donation->bank_account_iban)),
+      'iban'                   => preg_replace('/ +/', '', strtoupper($donation->bank_account_iban)),
     ];
-
-    // TOOD: what's this about?
-//    $external_contact_id = $donation->external_contact_id;
-//    if (!empty($external_contact_id)) {
-//      if (Luhn::isValid($external_contact_id)) {
-//        // remove trailing check digit
-//        $contact_data['id'] = substr($external_contact_id, 0, -1);
-//      } else {
-//        Civi::log()->warning("[donutapp] Got invalid value for external_contact_id: '{$external_contact_id}'");
-//      }
-//    }
 
     // remove empty attributes to prevent creation of useless diff activity
     foreach ($contact_data as $key => $value) {
@@ -366,7 +385,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
 
     // add a to-do if welcome mail wasn't sent
     if ($donation->welcome_email_status != 'sent') {
-      $todos[] = 'Keine Willkommens-E-Mail geschickt';
+      $todos[] = "Willkommens-E-Mail (noch) nicht geschickt. Aktueller Status ist '{$donation->welcome_email_status}'.";
     }
 
     // collect notes from comment field
