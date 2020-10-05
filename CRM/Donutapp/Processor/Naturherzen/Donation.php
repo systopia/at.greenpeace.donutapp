@@ -247,6 +247,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
       'frequency_interval' => (int) (12 / $donation->direct_debit_interval),
       'frequency_unit'     => 'month',
       'date'               => substr($donation->createtime, 0, 10),
+      'creation_date'      => substr($donation->createtime, 0, 10),
       'start_date'         => empty($donation->special1) ? $donation->contract_start_date : $donation->special1,
     ];
 
@@ -285,7 +286,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
 
       case 'swiss_direct_debit':
         $mandate_data['creditor_id'] = 3;
-        $mandate_data['status'] = 'ONHOLD';
+        $mandate_data['status'] = 'PENDING';
         break;
 
       default:
