@@ -13,7 +13,7 @@
 +-------------------------------------------------------*}
 
 <p>Kontakt '{$contact.display_name}' wurde erfasst von Werber '{$submission.fundraiser_name}'.</p>
-<p>SEPA Mandat <code>{$mandate.reference}</code> wird {$rcontribution.amount|crmMoney:$rcontribution.currency} alle {$rcontribution.freqency_interval} Monate einziehen.</p>
+<p>SEPA Mandat <code>{$mandate.reference}</code> wird {$rcontribution.amount|crmMoney:$rcontribution.currency} alle {$rcontribution.frequency_interval} Monate einziehen.</p>
 {if $todos}
 <p>Noch zu erledigen:
     <ul>
