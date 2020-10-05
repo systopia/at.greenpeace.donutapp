@@ -286,7 +286,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
 
       case 'swiss_direct_debit':
         $mandate_data['creditor_id'] = 3;
-        $mandate_data['status'] = 'PENDING';
+        $mandate_data['status'] = 'ONHOLD';
         break;
 
       default:
