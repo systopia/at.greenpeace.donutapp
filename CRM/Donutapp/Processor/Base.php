@@ -51,4 +51,29 @@ abstract class CRM_Donutapp_Processor_Base {
       throw new CRM_Exception("Required extension '{$extension_key}' not active/installed.");
     }
   }
+
+  /**
+   * Log the given entity data to a log file
+   *
+   * @param CRM_Donutapp_API_Entity $entity
+   *   the entity to log
+   *
+   * @param string $id_field
+   *   field from which to take the ID
+   */
+  public function logEntity($entity, $id_field = 'uid') {
+    static $log_folder = null;
+    if ($log_folder === null) {
+      $config = CRM_Core_Config::singleton();
+      $log_folder = $config->configAndLogDir . DIRECTORY_SEPARATOR . 'DonutAppLogs';
+      if (!file_exists($log_folder)) {
+        mkdir($log_folder);
+      }
+    }
+
+    // build file name
+    $file_name = date('Y-m-d H:i:s') . ' ' . get_class($entity) . ' ' . $entity->$id_field . '.log';
+    $file_path = $log_folder . DIRECTORY_SEPARATOR . $file_name;
+    file_put_contents($file_path, json_encode($entity->getData(), JSON_PRETTY_PRINT));
+  }
 }
