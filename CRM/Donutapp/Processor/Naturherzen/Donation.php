@@ -36,6 +36,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
       try {
         // preload PDF outside of transaction
         $donation->fetchPdf();
+        $this->logEntity($donation);
         $this->processWithTransaction($donation);
       }
       catch (Exception $e) {
@@ -56,7 +57,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
   /**
    * Process a donation within a database transaction
    *
-   * @param \CRM_Donutapp_API_Donation $donation
+   * @param CRM_Donutapp_API_Donation $donation
    *
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
@@ -74,13 +75,13 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
   /**
    * Process a donation
    *
-   * @param \CRM_Donutapp_API_Donation $donation
+   * @param CRM_Donutapp_API_Donation $donation
    *
-   * @throws \CRM_Donutapp_API_Error_Authentication
-   * @throws \CRM_Donutapp_API_Error_BadResponse
+   * @throws CRM_Donutapp_API_Error_Authentication
+   * @throws CRM_Donutapp_API_Error_BadResponse
    * @throws \CiviCRM_API3_Exception
    * @throws \GuzzleHttp\Exception\GuzzleException
-   * @throws \CRM_Donutapp_Processor_Exception
+   * @throws CRM_Donutapp_Processor_Exception
    */
   protected function processDonation(CRM_Donutapp_API_Donation $donation) {
     $contact_id = $this->createContact($donation);
@@ -116,11 +117,11 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
         $prefix_id = 5;
         break;
 
-      case 2: // Familie
+      case 3: // Familie
         $prefix_id = 7;
         break;
 
-      case 3: // Firma
+      case 2: // Firma
         $contact_type = 'Organization';
         break;
 
@@ -169,7 +170,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
 
     // add fundraiser fields
     $fundraiser_fields = [
-        'fundraiser_location' => 'custom_28', // todo: key not confirmed
+        'location'            => 'custom_28', // todo: key not confirmed
         'fundraiser_name'     => 'custom_31',
         'createtime'          => 'custom_29',
         'uid'                 => 'custom_30',
@@ -177,8 +178,9 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
         //'fundraiser_code'     => 'custom_?',
     ];
     foreach ($fundraiser_fields as $submission_field => $civicrm_field) {
-      if (isset($donation->$submission_field)) {
-        $contact_data[$civicrm_field] = $donation->$submission_field;
+      $value = $donation->$submission_field;
+      if (!empty($value)) {
+        $contact_data[$civicrm_field] = $value;
       }
     }
 
@@ -186,9 +188,9 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
     $data_protection_fields = [
         'contact_by_phone' => 'do_not_phone',
         'contact_by_email' => 'do_not_email',
-        'contact_by_mail'  => 'do_not_mail',  // todo: key not confirmed
+        //'contact_by_mail'  => 'do_not_mail',  // todo: key not confirmed
     ];
-    foreach ($fundraiser_fields as $submission_field => $civicrm_field) {
+    foreach ($data_protection_fields as $submission_field => $civicrm_field) {
       $contact_data[$civicrm_field] = empty($donation->$submission_field) ? 1 : 0;
     }
 
@@ -215,7 +217,6 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
    */
   protected function createMandate($donation, $contact_id)
   {
-    // todo: add a reference based on
     $mandate_data = [
       'type'               => 'RCUR',
       'contact_id'         => $contact_id,
@@ -238,6 +239,15 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
       }
     }
 
+    // alternative start date?
+    $notes = $this->getSpecials($donation, 1);
+    foreach ($notes as $note) {
+      if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $note)) {
+        // this is an alternative start date
+        $mandate_data['start_date'] = $note;
+      }
+    }
+
     // set amount - comma is decimal separator, no thousands separator
     $annualAmount = str_replace(',', '.', $donation->donation_amount_annual);
     $mandate_data['amount'] = number_format($annualAmount / $donation->direct_debit_interval, 2, '.', '');
@@ -254,12 +264,14 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
         $mandate_data['status'] = 'FRST';
         break;
 
-      default:
-      case 'alternative_iban':
-        // TODO: is alternative_iban correct?
+      case 'swiss_direct_debit':
         $mandate_data['creditor_id'] = 3;
         $mandate_data['status'] = 'ONHOLD';
         break;
+
+      default:
+        throw new CRM_Donutapp_Processor_Exception("Unknown payment method '{$donation->payment_method}'");
+
     }
 
     // todo: adjust onhold, delete validation date, update status?
@@ -285,12 +297,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
    */
   protected function createRecruitmentActivity($donation, $contact_id, $mandate)
   {
-    // collect TODOs:
-    $todos = [];
-    // check whether the status should be 'Scheduled' instead
-    if ($mandate['status'] != 'ONHOLD') {
-      $todos[] = "Mandat muss noch verifiziert und aktiviert werden";
-    }
+    $todos = $this->getTODOs($donation, $mandate);
 
     // compile activity data
     $activity_data = [
@@ -298,6 +305,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
       'activity_type_id'  => $this->getRecruitmentActivityTypeID(),
       'subject'           => 'Raise Together Recruitment (Formunauts)',
       'activity_datetime' => date('YmdHiS'),
+      'location'          => $donation->location,
       'status_id'         => empty($todos) ? 'Completed' : 'Scheduled',
       'campaign_id'       => $this->getCampaignID($donation),
     ];
@@ -332,5 +340,80 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
         VALUES ('civicrm_activity', %1, %2)", [
           1 => [$activity['id'], 'Integer'],
           2 => [$file['id'],     'Integer']]);
+  }
+
+  /**
+   * Extract a list of TODOs that will also cause the
+   *  activity to be set to 'Scheduled'
+   *
+   * @param CRM_Donutapp_API_Donation $donation
+   *   the current donation object
+   *
+   * @param array $mandate
+   *   sepa mandate created (data)
+   *
+   * @return array
+   *   a list of strings defining tasks
+   */
+  protected function getTODOs($donation, $mandate) {
+    // collect TODOs:
+    $todos = [];
+
+    // see if the mandate still needs to be activated
+    if ($mandate['status'] == 'ONHOLD') {
+      $todos[] = "Mandat muss noch verifiziert und aktiviert werden";
+    }
+
+    // add a to-do if welcome mail wasn't sent
+    if ($donation->welcome_email_status != 'sent') {
+      $todos[] = 'Keine Willkommens-E-Mail geschickt';
+    }
+
+    // collect notes from comment field
+    $comment = $donation->comment;
+    if (!empty($comment)) {
+      $todos[] = $comment;
+    }
+
+    // collect notes dumped into 'specialX' fields
+    foreach ([1,2,3] as $special_index) {
+      $notes = $this->getSpecials($donation, $special_index);
+      foreach ($notes as $note) {
+        // filter out dates (that's the mandate start date)
+        if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $note)) {
+          continue;
+        }
+        $todos[] = "Anmerkung/Wunsch: {$note}";
+      }
+    }
+
+    return $todos;
+  }
+
+  /**
+   * Return the requested property from one of the special<N> fields
+   *
+   * @param CRM_Donutapp_API_Donation $donation
+   *  donation object
+   *
+   * @param integer $index
+   *   which special field?
+   *
+   * @return array
+   *   list of special values
+   */
+  public function getSpecials($donation, $index) {
+    $specials = [];
+
+    $special_field = "special{$index}";
+    $special_data = $donation->$special_field;
+    if (!empty($special_data)) {
+      $special_entries = explode(';', $special_data);
+      foreach ($special_entries as $special_entry) {
+        $specials[] = $special_entry;
+      }
+    }
+
+    return $specials;
   }
 }

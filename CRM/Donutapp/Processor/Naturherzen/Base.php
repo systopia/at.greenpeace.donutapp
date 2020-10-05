@@ -114,7 +114,7 @@ abstract class CRM_Donutapp_Processor_Naturherzen_Base extends CRM_Donutapp_Proc
       try {
         $campaign_id = civicrm_api3('Campaign', 'getvalue', [
             'name'   => 'Strassenkampagne_smito',
-            'return' => 1]);
+            'return' => 'id']);
       } catch (CiviCRM_API3_Exception $ex) {
         // that doesn't seem to exist
       }
