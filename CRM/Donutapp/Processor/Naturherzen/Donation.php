@@ -293,8 +293,11 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
 
       default:
         throw new CRM_Donutapp_Processor_Exception("Unknown payment method '{$donation->payment_method}'");
-
     }
+
+    // set cycle day according to creditor
+    $cycle_days = CRM_Sepa_Logic_Settings::getListSetting("cycledays", range(1,28), $mandate_data['creditor_id']);
+    $mandate_data['cycle_day'] = reset($cycle_days); // todo: calculate best suiting? Now it's only one...
 
     // todo: adjust onhold, delete validation date, update status?
 
