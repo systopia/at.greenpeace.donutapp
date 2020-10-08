@@ -204,13 +204,15 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
     }
 
     // set data protection fields
+    $data_protection = $this->getSpecials($donation, 1);
     $data_protection_fields = [
-        'contact_by_phone' => 'do_not_phone',
-        'contact_by_email' => 'do_not_email',
-        //'contact_by_mail'  => 'do_not_mail',  // todo: key not confirmed
+        'phone_optin:yes'       => 'do_not_phone',
+        'email_optin:yes'       => 'do_not_email',
+        'post_optin:yes'        => 'do_not_mail',
+        'newsletter_optin:yes'  => 'is_opt_out',
     ];
     foreach ($data_protection_fields as $submission_field => $civicrm_field) {
-      $contact_data[$civicrm_field] = empty($donation->$submission_field) ? 1 : 0;
+      $contact_data[$civicrm_field] = (int) !in_array($submission_field, $data_protection);
     }
 
     // and match using XCM
