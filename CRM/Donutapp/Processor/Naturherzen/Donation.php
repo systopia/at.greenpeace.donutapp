@@ -283,7 +283,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
     switch ($donation->payment_method) {
       case 'postfinance_iban':
         $mandate_data['creditor_id'] = 2;
-        $mandate_data['status'] = 'FRST';
+        $mandate_data['status'] = 'INIT';
         break;
 
       case 'swiss_direct_debit':
@@ -298,8 +298,6 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
     // set cycle day according to creditor
     $cycle_days = CRM_Sepa_Logic_Settings::getListSetting("cycledays", range(1,28), $mandate_data['creditor_id']);
     $mandate_data['cycle_day'] = reset($cycle_days); // todo: calculate best suiting? Now it's only one...
-
-    // todo: adjust onhold, delete validation date, update status?
 
     // create mandate
     $result = civicrm_api3('SepaMandate', 'createfull', $mandate_data);
