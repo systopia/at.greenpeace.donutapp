@@ -383,7 +383,7 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
     $todos = [];
 
     // see if the mandate still needs to be activated
-    if ($mandate['status'] == 'ONHOLD') {
+    if ($mandate['status'] == 'INIT') {
       $todos[] = "Mandat muss noch verifiziert und aktiviert werden";
     }
 
