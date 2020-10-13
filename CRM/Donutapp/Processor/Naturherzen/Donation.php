@@ -406,6 +406,9 @@ class CRM_Donutapp_Processor_Naturherzen_Donation extends CRM_Donutapp_Processor
         if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $note)) {
           continue;
         }
+        if (in_array($note, ['phone_optin:yes', 'email_optin:yes', 'post_optin:yes', 'newsletter_optin:yes'])) {
+          continue;
+        }
         $todos[] = "Anmerkung/Wunsch: {$note}";
       }
     }
