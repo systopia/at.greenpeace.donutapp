@@ -2,6 +2,15 @@
 
 abstract class CRM_Donutapp_Processor_Greenpeace_Base extends CRM_Donutapp_Processor_Base {
 
+  public function verifySetup()
+  {
+    // make sure we have all the extensions
+    $this->assertExtensionInstalled('de.systopia.xcm');
+    $this->assertExtensionInstalled('de.systopia.contract');
+    $this->assertExtensionInstalled('org.project60.sepa');
+    $this->assertExtensionInstalled('com.cividesk.normalize');
+  }
+
   /**
    * Determine the Civi Campaign ID for an API entity
    *
