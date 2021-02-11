@@ -316,7 +316,7 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
   protected function createWebshopOrder(CRM_Donutapp_API_Donation $donation, $contactId, $membershipId) {
     $shirt_type = $donation->shirt_type;
     $shirt_size = $donation->shirt_size;
-    if (empty($shirt_type) && empty($shirt_size)) {
+    if (empty($shirt_type) || empty($shirt_size)) {
       return FALSE;
     }
     $shirt_type = str_replace('T-Shirt Modell:', '', $shirt_type);
@@ -324,17 +324,6 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
 
     // @todo: should not be hardcoded in case we want to add other incentives
     $order_type = 'T-Shirt';
-
-    if (empty($shirt_type)) {
-      // default to male
-      // this is going to come back to haunt me when I run for president ...
-      $shirt_type = 'M';
-    }
-
-    if (empty($shirt_size)) {
-      // default to medium
-      $shirt_size = 'M';
-    }
 
     $params = [
       'target_id'        => $contactId,
