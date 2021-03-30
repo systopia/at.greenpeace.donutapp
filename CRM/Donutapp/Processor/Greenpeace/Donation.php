@@ -227,6 +227,11 @@ class CRM_Donutapp_Processor_Greenpeace_Donation extends CRM_Donutapp_Processor_
 
     $now = new DateTime();
     $join_date = DateTime::createFromFormat('Y-m-d', $donation->contract_start_date);
+    if ($join_date > $now) {
+      throw new CRM_Donutapp_Processor_Exception(
+        "Invalid contract_start_date '{$donation->contract_start_date}'. Value must not be in the future"
+      );
+    }
     $signature_date = new DateTime($donation->createtime);
     $signature_date->setTimezone(new DateTimeZone(date_default_timezone_get()));
 

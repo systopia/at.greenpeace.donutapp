@@ -17,6 +17,7 @@ class CRM_Donutapp_Processor_Greenpeace_DonationTest extends CRM_Donutapp_Proces
 
   const SUCCESSFUL_AUTH_RESPONSE = '{"access_token": "secret", "token_type": "Bearer", "expires_in": 172800, "scope": "read write"}';
   const DONATION_RESPONSE = '{"count":3,"total_pages":1,"next":null,"previous":null,"results":[{"payment_method":"donut-sepa","on_hold_comment":"","fundraiser_code":"gpat-1337","raisenow_epp_transaction_id":null,"change_note_private":"","bank_account_bic":"","membership_channel":"Kontaktart:F2F","welcome_email_status":"sent","donor_first_name":"Jon","campaign_type":null,"bank_account_was_validated":false,"donor_occupation":4,"donor_phone":null,"donor_company_name":null,"special2":"","special1":"","location":"","donor_city":"Castle Black","donor_last_name":"Snow","organisation_id":null,"donor_salutation":2,"donor_email":"snow@thewatch.example.org","bank_account_bank_name":"","fundraiser_name":"Stark, Benjen","donor_date_of_birth":"1961-11-14","donor_country":"AT","donor_house_number":"1","bank_card_checked":null,"bank_account_holder":"Jon Snow","donor_mobile":"+43664123456","donor_street":"Main Street","donation_amount_annual":"180,00","uploadtime":"2019-10-26T14:56:25.535888Z","uid":12345,"campaign_id":260,"contact_by_email":0,"contract_start_date":"2019-10-26","change_note_public":"","on_hold":false,"donor_sex":2,"interest_group":"Tierfreunde","shirt_type":"","comments":"","person_id":"GT123456","customer_id":158,"direct_debit_interval":12,"membership_type":"Landwirtschaft","contact_by_phone":0,"topic_group":"Wald","agency_id":null,"donor_age_in_years":57,"donor_zip_code":"1234","bank_account_iban":"AT483200000012345864","donor_academic_title":null,"shirt_size":"","pdf":"https://donutapp.mock/api/v1/donations/pdf/?uid=12345","campaign_type2":null,"createtime":"2019-10-29T16:30:24.227000Z"},{"payment_method":"donut-sepa","on_hold_comment":"","fundraiser_code":"gpat-1337","raisenow_epp_transaction_id":null,"change_note_private":"","bank_account_bic":"","membership_channel":"Kontaktart:F2F","welcome_email_status":"sent","donor_first_name":"Jane","campaign_type":null,"bank_account_was_validated":false,"donor_occupation":4,"donor_phone":null,"donor_company_name":null,"special2":"","special1":"","location":"","donor_city":null,"donor_last_name":"Doe","organisation_id":null,"donor_salutation":2,"donor_email":"jadoe@example.org","bank_account_bank_name":"","fundraiser_name":"Some, Person","donor_date_of_birth":"1960-11-14","donor_country":null,"donor_house_number":null,"bank_card_checked":null,"bank_account_holder":"Jane Doe","donor_mobile":"+43660123456","donor_street":null,"donation_amount_annual":"150,00","uploadtime":"2019-10-26T14:56:25.535888Z","uid":54321,"campaign_id":260,"contact_by_email":0,"contract_start_date":"2019-10-26","change_note_public":"","on_hold":false,"donor_sex":1,"interest_group":"Tierfreunde","shirt_type":"","comments":"","person_id":"GT123457","customer_id":158,"direct_debit_interval":12,"membership_type":"Landwirtschaft","contact_by_phone":0,"topic_group":"Wald","agency_id":null,"donor_age_in_years":57,"donor_zip_code":null,"bank_account_iban":"DE75512108001245126199","donor_academic_title":null,"shirt_size":"","external_campaign_id":{EXTERNAL_CAMPAIGN_ID},"external_contact_id":{EXTERNAL_CONTACT_ID},"newsletter_optin":"1","pdf":"https://donutapp.mock/api/v1/donations/pdf/?uid=54321","campaign_type2":null,"createtime":"2019-10-29T16:30:24.227000Z"},{"payment_method":"donut-sepa","on_hold_comment":"","fundraiser_code":"gpat-1337","raisenow_epp_transaction_id":null,"change_note_private":"","bank_account_bic":"","membership_channel":"Kontaktart:F2F","welcome_email_status":"sent","donor_first_name":"Wendy","campaign_type":null,"bank_account_was_validated":false,"donor_occupation":4,"donor_phone":null,"donor_company_name":null,"special2":"","special1":"","location":"","donor_city":null,"donor_last_name":"Doe","organisation_id":null,"donor_salutation":2,"donor_email":"wedoe@example.org","bank_account_bank_name":"","fundraiser_name":"Some, Person","donor_date_of_birth":"1960-11-14","donor_country":null,"donor_house_number":null,"bank_card_checked":null,"bank_account_holder":"Wendy Doe","donor_mobile":"+43660123451","donor_street":null,"donation_amount_annual":"150,00","uploadtime":"2019-10-26T14:56:25.535888Z","uid":543210,"campaign_id":261,"contact_by_email":0,"contract_start_date":"2019-10-26","change_note_public":"","on_hold":false,"donor_sex":1,"interest_group":"Tierfreunde","shirt_type":"","comments":"","person_id":"GT123458","customer_id":158,"direct_debit_interval":12,"membership_type":"Landwirtschaft","contact_by_phone":0,"topic_group":"Wald","agency_id":null,"donor_age_in_years":57,"donor_zip_code":null,"bank_account_iban":"DE75512108001245126199","donor_academic_title":null,"shirt_size":"","newsletter_optin":"1","pdf":"https://donutapp.mock/api/v1/donations/pdf/?uid=543210","campaign_type2":null,"createtime":"2019-10-29T16:30:24.227000Z"}]}';
+  const DONATION_RESPONSE_JOIN_DATE = '{"count":1,"total_pages":1,"next":null,"previous":null,"results":[{"payment_method":"donut-sepa","on_hold_comment":"","fundraiser_code":"gpat-1337","raisenow_epp_transaction_id":null,"change_note_private":"","bank_account_bic":"","membership_channel":"Kontaktart:F2F","welcome_email_status":"sent","donor_first_name":"Jon","campaign_type":null,"bank_account_was_validated":false,"donor_occupation":4,"donor_phone":null,"donor_company_name":null,"special2":"","special1":"","location":"","donor_city":"Castle Black","donor_last_name":"Snow","organisation_id":null,"donor_salutation":2,"donor_email":"snow@thewatch.example.org","bank_account_bank_name":"","fundraiser_name":"Stark, Benjen","donor_date_of_birth":"1961-11-14","donor_country":"AT","donor_house_number":"1","bank_card_checked":null,"bank_account_holder":"Jon Snow","donor_mobile":"+43664123456","donor_street":"Main Street","donation_amount_annual":"180,00","uploadtime":"2019-10-26T14:56:25.535888Z","uid":55441,"campaign_id":260,"contact_by_email":0,"contract_start_date":"2099-10-26","change_note_public":"","on_hold":false,"donor_sex":2,"interest_group":"Tierfreunde","shirt_type":"","comments":"","person_id":"GT123459","customer_id":158,"direct_debit_interval":12,"membership_type":"Landwirtschaft","contact_by_phone":0,"topic_group":"Wald","agency_id":null,"donor_age_in_years":57,"donor_zip_code":"1234","bank_account_iban":"AT483200000012345864","donor_academic_title":null,"shirt_size":"","pdf":"https://donutapp.mock/api/v1/donations/pdf/?uid=55441","campaign_type2":null,"createtime":"2019-10-29T16:30:24.227000Z"}]}';
   const CONFIRMATION_RESPONSE = '[{"status":"success","message":"","uid":{UID},"confirmation_date":"2019-10-30T11:25:12.335209Z"}]';
 
   private $altCampaignId;
@@ -271,6 +272,48 @@ class CRM_Donutapp_Processor_Greenpeace_DonationTest extends CRM_Donutapp_Proces
       $this->mappedCampaignId,
       $mappedContract['campaign_id'],
       'Campaign mapped via donutapp_campaign_map setting should be used'
+    );
+  }
+
+  public function testContractJoinDate() {
+    $container = [];
+    $history = Middleware::history($container);
+    $mock = new MockHandler([
+      new Response(
+        200,
+        ['Content-Type' => 'application/json'],
+        str_replace(
+          ['{EXTERNAL_CAMPAIGN_ID}', '{EXTERNAL_CONTACT_ID}'],
+          [$this->altCampaignId, Luhn::create($this->contactId)],
+          self::DONATION_RESPONSE_JOIN_DATE
+        )
+      ),
+      new Response(
+        200,
+        ['Content-Type' => 'application/pdf'],
+        'test pdf'
+      ),
+      new Response(
+        200,
+        ['Content-Type' => 'application/json'],
+        str_replace('{UID}', '55441', self::CONFIRMATION_RESPONSE)
+      ),
+    ]);
+    $stack = HandlerStack::create($mock);
+    $stack->push($history);
+    CRM_Donutapp_API_Client::setupClient(['handler' => $stack]);
+    $processor = new CRM_Donutapp_Processor_Greenpeace_Donation([
+      'client_id' => 'client-id',
+      'client_secret' => 'client-secret',
+      'campaign_id' => $this->campaignId,
+      'confirm' => TRUE,
+      'limit' => 100,
+    ]);
+    $processor->process();
+    $error = $this->getLastImportError();
+    $this->assertRegexp(
+      "/Invalid contract_start_date '2099-10-26'. Value must not be in the future/",
+      $error['details']
     );
   }
 
