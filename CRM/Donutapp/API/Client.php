@@ -4,7 +4,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 
 class CRM_Donutapp_API_Client {
-  const API_ENDPOINT = 'https://donutapp.io/api/v1/';
+  const API_ENDPOINT = 'https://app.formunauts.com/api/v2/ ';
   const OAUTH2_ENDPOINT = 'https://donutapp.io/o/token/?grant_type=client_credentials';
 
   static $apiEndpoint = self::API_ENDPOINT;
